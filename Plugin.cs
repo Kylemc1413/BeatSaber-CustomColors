@@ -13,9 +13,10 @@ namespace CustomColors
     {
         Color _colorLeft = new Color(1, 0, 0);
         Color _colorRight = new Color(0, 0, 1);
+        int _trailLength = 20;
 
         public string Name => "CustomColors";
-        public string Version => "1.0";
+        public string Version => "1.1";
 
         bool _init;
         bool _colorInit;
@@ -66,6 +67,8 @@ namespace CustomColors
                 ModPrefs.GetFloat(Name, "RightGreen", 0, true) / 255f,
                 ModPrefs.GetFloat(Name, "RightBlue", 0, true) / 255f
             );
+
+            _trailLength = ModPrefs.GetInt(Name, "TrailLength", 20, true);
         }
 
         void GetObjects()
@@ -119,9 +122,9 @@ namespace CustomColors
 
             foreach (var trail in _saberTrails)
             {
-                ReflectionUtil.SetPrivateField(trail, "_maxFrame", 50);
+                ReflectionUtil.SetPrivateField(trail, "_maxFrame", _trailLength);
             }
-            Log("SaberTrail colors set!");
+            Log("SaberTrail length set!");
 
 
             foreach (var prePassLight in _prePassLights)

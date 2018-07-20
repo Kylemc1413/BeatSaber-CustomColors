@@ -9,6 +9,7 @@ LeftBlue=0
 RightRed=255
 RightGreen=0
 RightBlue=0
+TrailLength=20
 ```
 
 Run the game once to have these populated for you!

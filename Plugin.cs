@@ -14,12 +14,14 @@ namespace CustomColors
         Color _colorLeft = new Color(1, 0, 0);
         Color _colorRight = new Color(0, 0, 1);
         int _trailLength = 20;
+        bool _overrideCustomSabers = true;
 
         public string Name => "CustomColors";
         public string Version => "1.1";
 
         bool _init;
         bool _colorInit;
+        bool _customsInit;
 
         //Color objects
         readonly List<SimpleColorSO> _protectedScriptableColors = new List<SimpleColorSO>();
@@ -69,6 +71,8 @@ namespace CustomColors
             );
 
             _trailLength = ModPrefs.GetInt(Name, "TrailLength", 20, true);
+
+            _overrideCustomSabers = ModPrefs.GetBool(Name, "OverrideCustomSabers", true, true);
         }
 
         void GetObjects()
@@ -93,11 +97,45 @@ namespace CustomColors
         void InvalidateColors()
         {
             _colorInit = false;
+            _customsInit = false;
             _protectedScriptableColors.Clear();
+        }
+
+        void EnsureCustomSabersOverridden()
+        {
+            if (!_colorInit) return;
+            if (_customsInit) return;
+
+            _customsInit = OverrideSaber("LeftSaber", _colorLeft) && OverrideSaber("RightSaber", _colorRight);
+        }
+        bool OverrideSaber(string objectName, Color color)
+        {
+            var saberObject = GameObject.Find(objectName);
+            if (saberObject == null) return false;
+
+            var saberRenderers = saberObject.GetComponentsInChildren<Renderer>();
+            if (saberRenderers == null) return false;
+
+            foreach (var renderer in saberRenderers)
+            {
+                foreach (var renderMaterial in renderer.sharedMaterials)
+                {
+                    if (renderMaterial.HasProperty("_Glow") && renderMaterial.GetFloat("_Glow") > 0 ||
+                        renderMaterial.HasProperty("_Bloom") && renderMaterial.GetFloat("_Bloom") > 0)
+                    {
+                        renderMaterial.SetColor("_Color", color);
+                    }
+                }
+            }
+
+            return true;
         }
 
         public void OnUpdate()
         {
+            if (_colorInit && _overrideCustomSabers)
+                EnsureCustomSabersOverridden();
+
             if (_colorInit) return;
 
 
@@ -159,6 +197,7 @@ namespace CustomColors
 
                 Log("Menu colors set!");
             }
+
 
             _colorInit = true;
         }

@@ -6,9 +6,9 @@ Edit your colors in `\Beat Saber\UserData\modprefs.ini`:
 LeftRed=255
 LeftGreen=0
 LeftBlue=0
-RightRed=255
+RightRed=0
 RightGreen=0
-RightBlue=0
+RightBlue=255
 TrailLength=20
 OverrideCustomSabers=1
 ```

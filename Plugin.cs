@@ -60,13 +60,13 @@ namespace CustomColors
         {
             _colorLeft = new Color(
                 ModPrefs.GetFloat(Name, "LeftRed", 255, true) / 255f,
-                ModPrefs.GetFloat(Name, "LeftGreen", 0, true) / 255f,
-                ModPrefs.GetFloat(Name, "LeftBlue", 0, true) / 255f
+                ModPrefs.GetFloat(Name, "LeftGreen", 4, true) / 255f,
+                ModPrefs.GetFloat(Name, "LeftBlue", 4, true) / 255f
             );
 
             _colorRight = new Color(
                 ModPrefs.GetFloat(Name, "RightRed", 0, true) / 255f,
-                ModPrefs.GetFloat(Name, "RightGreen", 0, true) / 255f,
+                ModPrefs.GetFloat(Name, "RightGreen", 192, true) / 255f,
                 ModPrefs.GetFloat(Name, "RightBlue", 255, true) / 255f
             );
 

@@ -16,7 +16,7 @@ namespace CustomColors {
         bool _overrideCustomSabers = true;
 
         public string Name => "CustomColors";
-        public string Version => "1.1";
+        public string Version => "1.1.0";
 
         bool _init;
         bool _colorInit;

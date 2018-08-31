@@ -11,12 +11,15 @@ namespace CustomColors
 {
     public class Plugin : IPlugin
     {
+        public const string Name = "CustomColors";
+        public const string Version = "1.2.0";
+
         Color _colorLeft = new Color(1, 0, 0);
         Color _colorRight = new Color(0, 0, 1);
         bool _overrideCustomSabers = true;
 
-        public string Name => "CustomColors";
-        public string Version => "1.1.0";
+        string IPlugin.Name => Name;
+        string IPlugin.Version => Version;
 
         bool _init;
         bool _colorInit;
@@ -53,7 +56,7 @@ namespace CustomColors
             InvalidateColors();
         }
 
-        private IEnumerator DelayedOnActiveSceneChanged(Scene scene)
+        IEnumerator DelayedOnActiveSceneChanged(Scene scene)
         {
             InvalidateColors();
             yield return new WaitForSeconds(0.01f);
@@ -207,17 +210,21 @@ namespace CustomColors
             _colorInit = true;
         }
 
-        public void OnFixedUpdate() { }
-        public void OnLevelWasInitialized(int level) { }
-        public void OnLevelWasLoaded(int level) { }
-
-        void Log(string message)
+        public static void Log(string message)
         {
             Console.WriteLine("[{0}] {1}", Name, message);
         }
-        void Log(string format, params object[] args)
+        public static void Log(string format, params object[] args)
         {
             Log(string.Format(format, args));
         }
+
+        #region Unused IPlugin Members
+
+        void IPlugin.OnFixedUpdate() { }
+        void IPlugin.OnLevelWasLoaded(int level) { }
+        void IPlugin.OnLevelWasInitialized(int level) { }
+
+        #endregion
     }
 }

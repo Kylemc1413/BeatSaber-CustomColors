@@ -1,5 +1,6 @@
-﻿using IllusionPlugin;
+using IllusionPlugin;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -7,10 +8,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Xft;
 
-namespace CustomColors
-{
-    public class Plugin : IPlugin
-    {
+namespace CustomColors {
+    public class Plugin : IPlugin {
         Color _colorLeft = new Color(1, 0, 0);
         Color _colorRight = new Color(0, 0, 1);
         int _trailLength = 20;
@@ -33,8 +32,7 @@ namespace CustomColors
         XWeaponTrail[] _saberTrails;
         TubeBloomPrePassLight[] _prePassLights;
 
-        public void OnApplicationStart()
-        {
+        public void OnApplicationStart() {
             if (_init) return;
             _init = true;
 
@@ -43,21 +41,28 @@ namespace CustomColors
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
         }
 
-        public void OnApplicationQuit()
-        {
+        public void OnApplicationQuit() {
             SceneManager.activeSceneChanged -= SceneManagerOnActiveSceneChanged;
         }
 
-        void SceneManagerOnActiveSceneChanged(Scene arg0, Scene scene)
-        {
+        void SceneManagerOnActiveSceneChanged(Scene arg0, Scene scene) {
+            SharedCoroutineStarter.instance.StartCoroutine(DelayedOnActiveSceneChanged(scene));
             ReadPreferences();
 
             GetObjects();
             InvalidateColors();
         }
 
-        void ReadPreferences()
-        {
+        private IEnumerator DelayedOnActiveSceneChanged(Scene scene) {
+            InvalidateColors();
+            yield return new WaitForSeconds(0.01f);
+
+            ReadPreferences();
+            GetObjects();
+            InvalidateColors();
+        }
+
+        void ReadPreferences() {
             _colorLeft = new Color(
                 ModPrefs.GetFloat(Name, "LeftRed", 255, true) / 255f,
                 ModPrefs.GetFloat(Name, "LeftGreen", 4, true) / 255f,
@@ -75,8 +80,7 @@ namespace CustomColors
             _overrideCustomSabers = ModPrefs.GetBool(Name, "OverrideCustomSabers", true, true);
         }
 
-        void GetObjects()
-        {
+        void GetObjects() {
             _scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
 
             _allMaterials = Resources.FindObjectsOfTypeAll<Material>();
@@ -94,35 +98,29 @@ namespace CustomColors
             );
         }
 
-        void InvalidateColors()
-        {
+        void InvalidateColors() {
             _colorInit = false;
             _customsInit = false;
             _protectedScriptableColors.Clear();
         }
 
-        void EnsureCustomSabersOverridden()
-        {
+        void EnsureCustomSabersOverridden() {
             if (!_colorInit) return;
             if (_customsInit) return;
 
             _customsInit = OverrideSaber("LeftSaber", _colorLeft) && OverrideSaber("RightSaber", _colorRight);
         }
-        bool OverrideSaber(string objectName, Color color)
-        {
+        bool OverrideSaber(string objectName, Color color) {
             var saberObject = GameObject.Find(objectName);
             if (saberObject == null) return false;
 
             var saberRenderers = saberObject.GetComponentsInChildren<Renderer>();
             if (saberRenderers == null) return false;
 
-            foreach (var renderer in saberRenderers)
-            {
-                foreach (var renderMaterial in renderer.sharedMaterials)
-                {
+            foreach (var renderer in saberRenderers) {
+                foreach (var renderMaterial in renderer.sharedMaterials) {
                     if (renderMaterial.HasProperty("_Glow") && renderMaterial.GetFloat("_Glow") > 0 ||
-                        renderMaterial.HasProperty("_Bloom") && renderMaterial.GetFloat("_Bloom") > 0)
-                    {
+                        renderMaterial.HasProperty("_Bloom") && renderMaterial.GetFloat("_Bloom") > 0) {
                         renderMaterial.SetColor("_Color", color);
                     }
                 }
@@ -131,8 +129,7 @@ namespace CustomColors
             return true;
         }
 
-        public void OnUpdate()
-        {
+        public void OnUpdate() {
             if (_colorInit && _overrideCustomSabers)
                 EnsureCustomSabersOverridden();
 
@@ -153,20 +150,24 @@ namespace CustomColors
             Log("ColorManager colors set!");
 
 
-            foreach (var scriptableColor in _scriptableColors.Except(_protectedScriptableColors))
-                scriptableColor.SetColor(scriptableColor.color.r > 0.5 ? _colorLeft : _colorRight);
+            foreach (var scriptableColor in _scriptableColors.Except(_protectedScriptableColors)) {
+                if (!scriptableColor.name.Contains("-CustomColorApplied")) {
+                    scriptableColor.SetColor(scriptableColor.color.r > 0.5 ? _colorLeft : _colorRight);
+                    scriptableColor.name += "-CustomColorApplied";
+                    Log($"Scriptable color: {scriptableColor.name}");
+                }
+            }
+
             Log("ScriptableColors modified!");
 
 
-            foreach (var trail in _saberTrails)
-            {
+            foreach (var trail in _saberTrails) {
                 ReflectionUtil.SetPrivateField(trail, "_maxFrame", _trailLength);
             }
             Log("SaberTrail length set!");
 
 
-            foreach (var prePassLight in _prePassLights)
-            {
+            foreach (var prePassLight in _prePassLights) {
                 var oldCol = ReflectionUtil.GetPrivateField<Color>(prePassLight, "_color");
 
                 ReflectionUtil.SetPrivateField(prePassLight, "_color", oldCol.r > 0.5 ? _colorLeft : _colorRight);
@@ -174,21 +175,23 @@ namespace CustomColors
             Log("PrePassLight colors set!");
 
 
-            foreach (var light in _environmentLights)
-            {
+            foreach (var light in _environmentLights) {
                 light.SetColor("_Color", new Color(_colorRight.r * 0.5f, _colorRight.g * 0.5f, _colorRight.b * 0.5f, 1.0f));
             }
             Log("Environment light colors set!");
 
 
-            if (SceneManager.GetActiveScene().name == "Menu")
-            {
+            if (SceneManager.GetActiveScene().name == "Menu") {
                 var texts = UnityEngine.Object.FindObjectsOfType<TextMeshPro>();
-                foreach (var text in texts)
-                {
-                    var oldCol = ReflectionUtil.GetPrivateField<Color>(text, "m_fontColor");
+                foreach (var text in texts) {
+                    if (!text.name.Contains("-CustomColorApplied")) {
+                        var oldCol = ReflectionUtil.GetPrivateField<Color>(text, "m_fontColor");
 
-                    ReflectionUtil.SetPrivateField(text, "m_fontColor", oldCol.r > 0.5 ? _colorLeft : _colorRight);
+                        ReflectionUtil.SetPrivateField(text, "m_fontColor", oldCol.r > 0.5 ? _colorLeft : _colorRight);
+                        text.name += "-CustomColorApplied";
+
+                        Log($"text: {text.name}");
+                    }
                 }
 
                 var flickeringLetter = UnityEngine.Object.FindObjectOfType<FlickeringNeonSign>();
@@ -206,12 +209,10 @@ namespace CustomColors
         public void OnLevelWasInitialized(int level) { }
         public void OnLevelWasLoaded(int level) { }
 
-        void Log(string message)
-        {
+        void Log(string message) {
             Console.WriteLine("[{0}] {1}", Name, message);
         }
-        void Log(string format, params object[] args)
-        {
+        void Log(string format, params object[] args) {
             Log(string.Format(format, args));
         }
     }

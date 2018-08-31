@@ -9,7 +9,6 @@ LeftBlue=0
 RightRed=0
 RightGreen=0
 RightBlue=255
-TrailLength=20
 OverrideCustomSabers=1
 ```
 

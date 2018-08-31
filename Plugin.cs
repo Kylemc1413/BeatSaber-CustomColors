@@ -12,7 +12,7 @@ namespace CustomColors
     public class Plugin : IPlugin
     {
         public const string Name = "CustomColors";
-        public const string Version = "1.2.0";
+        public const string Version = "1.3.0";
 
         Color _colorLeft = new Color(1, 0, 0);
         Color _colorRight = new Color(0, 0, 1);

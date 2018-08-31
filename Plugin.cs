@@ -1,23 +1,25 @@
-﻿using IllusionPlugin;
+using IllusionPlugin;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Xft;
 
 namespace CustomColors
 {
     public class Plugin : IPlugin
     {
+        public const string Name = "CustomColors";
+        public const string Version = "1.2.0";
+
         Color _colorLeft = new Color(1, 0, 0);
         Color _colorRight = new Color(0, 0, 1);
-        int _trailLength = 20;
         bool _overrideCustomSabers = true;
 
-        public string Name => "CustomColors";
-        public string Version => "1.1.0";
+        string IPlugin.Name => Name;
+        string IPlugin.Version => Version;
 
         bool _init;
         bool _colorInit;
@@ -27,10 +29,7 @@ namespace CustomColors
         readonly List<SimpleColorSO> _protectedScriptableColors = new List<SimpleColorSO>();
 
         SimpleColorSO[] _scriptableColors;
-        Material[] _allMaterials;
         readonly List<Material> _environmentLights = new List<Material>();
-        Saber[] _sabers;
-        XWeaponTrail[] _saberTrails;
         TubeBloomPrePassLight[] _prePassLights;
 
         public void OnApplicationStart()
@@ -50,8 +49,19 @@ namespace CustomColors
 
         void SceneManagerOnActiveSceneChanged(Scene arg0, Scene scene)
         {
+            SharedCoroutineStarter.instance.StartCoroutine(DelayedOnActiveSceneChanged(scene));
             ReadPreferences();
 
+            GetObjects();
+            InvalidateColors();
+        }
+
+        IEnumerator DelayedOnActiveSceneChanged(Scene scene)
+        {
+            InvalidateColors();
+            yield return new WaitForSeconds(0.01f);
+
+            ReadPreferences();
             GetObjects();
             InvalidateColors();
         }
@@ -70,18 +80,12 @@ namespace CustomColors
                 ModPrefs.GetFloat(Name, "RightBlue", 255, true) / 255f
             );
 
-            _trailLength = ModPrefs.GetInt(Name, "TrailLength", 20, true);
-
             _overrideCustomSabers = ModPrefs.GetBool(Name, "OverrideCustomSabers", true, true);
         }
 
         void GetObjects()
         {
             _scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
-
-            _allMaterials = Resources.FindObjectsOfTypeAll<Material>();
-            _sabers = UnityEngine.Object.FindObjectsOfType<Saber>();
-            _saberTrails = UnityEngine.Object.FindObjectsOfType<XWeaponTrail>();
             _prePassLights = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>();
 
             var renderers = UnityEngine.Object.FindObjectsOfType<Renderer>();
@@ -154,15 +158,14 @@ namespace CustomColors
 
 
             foreach (var scriptableColor in _scriptableColors.Except(_protectedScriptableColors))
-                scriptableColor.SetColor(scriptableColor.color.r > 0.5 ? _colorLeft : _colorRight);
-            Log("ScriptableColors modified!");
-
-
-            foreach (var trail in _saberTrails)
             {
-                ReflectionUtil.SetPrivateField(trail, "_maxFrame", _trailLength);
+                if (scriptableColor.name.Contains("-CustomColorApplied")) continue;
+
+                scriptableColor.SetColor(scriptableColor.color.r > 0.5 ? _colorLeft : _colorRight);
+                scriptableColor.name += "-CustomColorApplied";
+                Log($"Scriptable color: {scriptableColor.name}");
             }
-            Log("SaberTrail length set!");
+            Log("ScriptableColors modified!");
 
 
             foreach (var prePassLight in _prePassLights)
@@ -186,9 +189,14 @@ namespace CustomColors
                 var texts = UnityEngine.Object.FindObjectsOfType<TextMeshPro>();
                 foreach (var text in texts)
                 {
+                    if (text.name.Contains("-CustomColorApplied")) continue;
+
                     var oldCol = ReflectionUtil.GetPrivateField<Color>(text, "m_fontColor");
 
                     ReflectionUtil.SetPrivateField(text, "m_fontColor", oldCol.r > 0.5 ? _colorLeft : _colorRight);
+                    text.name += "-CustomColorApplied";
+
+                    Log($"text: {text.name}");
                 }
 
                 var flickeringLetter = UnityEngine.Object.FindObjectOfType<FlickeringNeonSign>();
@@ -202,17 +210,21 @@ namespace CustomColors
             _colorInit = true;
         }
 
-        public void OnFixedUpdate() { }
-        public void OnLevelWasInitialized(int level) { }
-        public void OnLevelWasLoaded(int level) { }
-
-        void Log(string message)
+        public static void Log(string message)
         {
             Console.WriteLine("[{0}] {1}", Name, message);
         }
-        void Log(string format, params object[] args)
+        public static void Log(string format, params object[] args)
         {
             Log(string.Format(format, args));
         }
+
+        #region Unused IPlugin Members
+
+        void IPlugin.OnFixedUpdate() { }
+        void IPlugin.OnLevelWasLoaded(int level) { }
+        void IPlugin.OnLevelWasInitialized(int level) { }
+
+        #endregion
     }
 }

@@ -12,14 +12,16 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using VRUI;
 using System.Globalization;
+using IllusionInjector;
 namespace CustomColors
 {
     class ColorsUI : MonoBehaviour
     {
+    
 
         public static void CreateSettingsUI()
         {
-            float[] ColorRange = new float[1000];
+                float[] ColorRange = new float[1000];
             fillArray(ColorRange, 0, 1000);
 
             //Left Color Menu
@@ -149,8 +151,32 @@ namespace CustomColors
             {
                 ModPrefs.SetBool(Plugin.Name, "OverrideCustomSabers", value);
             };
-    
 
+
+            bool saberTailorInstalled = checkSaberTailor();
+            float[] validTrailLength = new float[101];
+            fillArray(validTrailLength, 0, 101);
+
+            if(saberTailorInstalled == true)
+            {
+                //Trail adjustment if Saber Tailor is installed
+                var SaberTrailsL = subMenuL.AddList("Trail Length", validTrailLength);
+                SaberTrailsL.GetValue += delegate
+                {
+                    return ModPrefs.GetInt("SaberTailor", "TrailLength", 20, true);
+                };
+
+                SaberTrailsL.SetValue += delegate (float value)
+                {
+                    ModPrefs.SetInt("SaberTailor", "TrailLength", (int)value);
+
+                };
+
+                SaberTrailsL.FormatValue += delegate (float value)
+                {
+                    return value.ToString();
+                };
+            }
 
 
 
@@ -164,9 +190,18 @@ namespace CustomColors
             }
         }
 
-    }
+        public static bool checkSaberTailor()
+        {
+            bool result = false;
+            foreach (IPlugin plugin in PluginManager.Plugins)
+            {
+                if (plugin.ToString() == "SaberTailor.Plugin")
+                    result = true;
+            }
+            return result; 
+        }
+
+
+
 }
-
-
-
-
+}

@@ -136,6 +136,22 @@ namespace CustomColors
                 return value.ToString();
             };
 
+            
+            //Saber Override Setting for Left menu
+            var saberOverrideL = subMenuL.AddBool("Override Custom Saber Color");
+
+            saberOverrideL.GetValue += delegate
+            {
+                return ModPrefs.GetBool(Plugin.Name, "OverrideCustomSabers", true, true);
+            };
+
+            saberOverrideL.SetValue += delegate (bool value)
+            {
+                ModPrefs.SetBool(Plugin.Name, "OverrideCustomSabers", value);
+            };
+    
+
+
 
 
         }
@@ -147,7 +163,6 @@ namespace CustomColors
                 a[i] = i;
             }
         }
-
 
     }
 }

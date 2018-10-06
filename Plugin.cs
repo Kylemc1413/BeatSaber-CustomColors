@@ -24,7 +24,6 @@ namespace CustomColors
         bool _init;
         bool _colorInit;
         bool _customsInit;
-
         //Color objects
         readonly List<SimpleColorSO> _protectedScriptableColors = new List<SimpleColorSO>();
 
@@ -49,6 +48,11 @@ namespace CustomColors
 
         void SceneManagerOnActiveSceneChanged(Scene arg0, Scene scene)
         {
+            if(scene.name == "Menu")
+            {
+                ColorsUI.CreateSettingsUI();
+            }
+
             SharedCoroutineStarter.instance.StartCoroutine(DelayedOnActiveSceneChanged(scene));
             ReadPreferences();
 
@@ -183,9 +187,8 @@ namespace CustomColors
             }
             Log("Environment light colors set!");
 
-
             if (SceneManager.GetActiveScene().name == "Menu")
-            {
+            {            
                 var texts = UnityEngine.Object.FindObjectsOfType<TextMeshPro>();
                 foreach (var text in texts)
                 {

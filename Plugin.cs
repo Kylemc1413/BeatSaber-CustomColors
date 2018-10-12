@@ -24,8 +24,6 @@ namespace CustomColors
         bool _init;
         bool _colorInit;
         bool _customsInit;
-        //Color objects
-        readonly List<SimpleColorSO> _protectedScriptableColors = new List<SimpleColorSO>();
 
         SimpleColorSO[] _scriptableColors;
         readonly List<Material> _environmentLights = new List<Material>();
@@ -106,7 +104,6 @@ namespace CustomColors
         {
             _colorInit = false;
             _customsInit = false;
-            _protectedScriptableColors.Clear();
         }
 
         void EnsureCustomSabersOverridden()
@@ -155,19 +152,35 @@ namespace CustomColors
 
             leftColor.SetColor(_colorLeft);
             rightColor.SetColor(_colorRight);
-
-            _protectedScriptableColors.Add(leftColor);
-            _protectedScriptableColors.Add(rightColor);
+            
             Log("ColorManager colors set!");
 
-
-            foreach (var scriptableColor in _scriptableColors.Except(_protectedScriptableColors))
+            
+            foreach (var scriptableColor in _scriptableColors)
             {
-                if (scriptableColor.name.Contains("-CustomColorApplied")) continue;
-
-                scriptableColor.SetColor(scriptableColor.color.r > 0.5 ? _colorLeft : _colorRight);
-                scriptableColor.name += "-CustomColorApplied";
-                Log($"Scriptable color: {scriptableColor.name}");
+                if (scriptableColor.name.Contains("-LeftColor")) 
+                {
+                    scriptableColor.SetColor(_colorLeft);
+                }
+                else if (scriptableColor.name.Contains("-RightColor")) 
+                {
+                    scriptableColor.SetColor(_colorRight);
+                }
+                else 
+                {
+                    if (scriptableColor.color.r > 0.5) 
+					{
+                        scriptableColor.name += "-LeftColor";
+                        scriptableColor.SetColor(_colorLeft);
+                    }
+                    else 
+					{
+                        scriptableColor.name += "-RightColor";
+                        scriptableColor.SetColor(_colorRight);
+                    }
+                }
+                
+                Log($"Set scriptable color: {scriptableColor.name}");
             }
             Log("ScriptableColors modified!");
 

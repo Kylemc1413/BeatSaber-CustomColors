@@ -177,38 +177,35 @@ namespace CustomColors
             
             foreach (var scriptableColor in _scriptableColors)
             {
-                if (scriptableColor.name.Contains("-LeftColor")) 
+                if (scriptableColor.name == "Color Red" || scriptableColor.name == "BaseColor1") 
                 {
                     scriptableColor.SetColor(_colorLeft);
                 }
-                else if (scriptableColor.name.Contains("-RightColor")) 
+                else if (scriptableColor.name == "Color Blue" ||  scriptableColor.name == "BaseColor0")
                 {
                     scriptableColor.SetColor(_colorRight);
                 }
-                else 
-                {
-                    if (scriptableColor.color.r > 0.5) 
-					{
-                        scriptableColor.name += "-LeftColor";
-                        scriptableColor.SetColor(_colorLeft);
-                    }
-                    else 
-					{
-                        scriptableColor.name += "-RightColor";
-                        scriptableColor.SetColor(_colorRight);
-                    }
-                }
-                
-                Log($"Set scriptable color: {scriptableColor.name}");
+                //Log($"Set scriptable color: {scriptableColor.name}");
             }
             Log("ScriptableColors modified!");
 
 
             foreach (var prePassLight in _prePassLights)
             {
-                var oldCol = ReflectionUtil.GetPrivateField<Color>(prePassLight, "_color");
+                if (prePassLight.name.Contains("-RightColor") || prePassLight.name.Contains("-LeftColor")) continue;
 
-                ReflectionUtil.SetPrivateField(prePassLight, "_color", oldCol.r > 0.5 ? _colorLeft : _colorRight);
+                var oldCol = ReflectionUtil.GetPrivateField<Color>(prePassLight, "_color");
+                if (oldCol.r > 0.5) 
+                {
+                    prePassLight.name += "-LeftColor";
+                    ReflectionUtil.SetPrivateField(prePassLight, "_color", _colorLeft);
+                }
+                else 
+                {
+                    prePassLight.name += "-RightColor";
+                    ReflectionUtil.SetPrivateField(prePassLight, "_color", _colorRight);
+                }
+                //Log($"PrepassLight: {prePassLight.name}");
             }
             Log("PrePassLight colors set!");
 
@@ -224,13 +221,12 @@ namespace CustomColors
                 var texts = UnityEngine.Object.FindObjectsOfType<TextMeshPro>();
                 foreach (var text in texts)
                 {
-                    if (text.name.Contains("-CustomColorApplied")) continue;
-
-                    var oldCol = ReflectionUtil.GetPrivateField<Color>(text, "m_fontColor");
-
-                    ReflectionUtil.SetPrivateField(text, "m_fontColor", oldCol.r > 0.5 ? _colorLeft : _colorRight);
-                    text.name += "-CustomColorApplied";
-
+                    if (text.name == "PP" || text.name == "SABER") {
+                        ReflectionUtil.SetPrivateField(text, "m_fontColor", _colorLeft);
+                    }
+                    else if(text.name == "AT" || text.name == "B" || text.name == "E") {
+                        ReflectionUtil.SetPrivateField(text, "m_fontColor", _colorRight);
+                    }
                     Log($"text: {text.name}");
                 }
 

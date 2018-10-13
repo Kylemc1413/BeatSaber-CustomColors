@@ -21,6 +21,9 @@ namespace CustomColors
         public static int rightColorPreset = 0;
         public static int userIncrement;
 
+        public const int Max = 3000;
+        public const int Min = 0;
+
         string IPlugin.Name => Name;
         string IPlugin.Version => Version;
 
@@ -50,7 +53,7 @@ namespace CustomColors
 
         void SceneManagerOnActiveSceneChanged(Scene arg0, Scene scene)
         {
-            if(scene.name == "Menu")
+            if (scene.name == "Menu")
             {
                 ColorsUI.CreateSettingsUI();
             }
@@ -84,19 +87,19 @@ namespace CustomColors
             //If preset is user get modprefs for colors, otherwise use preset
             if (leftColorPreset == 0)
                 _colorLeft = new Color(
-                    ModPrefs.GetFloat(Name, "LeftRed", 255, true) / 255f,
-                    ModPrefs.GetFloat(Name, "LeftGreen", 4, true) / 255f,
-                    ModPrefs.GetFloat(Name, "LeftBlue", 4, true) / 255f
+                    ModPrefs.GetInt(Name, "LeftRed", 255, true) / 255,
+                    ModPrefs.GetInt(Name, "LeftGreen", 4, true) / 255,
+                    ModPrefs.GetInt(Name, "LeftBlue", 4, true) / 255f
                 );
             else
                 _colorLeft = ColorsUI.ColorPresets[leftColorPreset].Item1;
 
-            if(rightColorPreset == 0)
-            _colorRight = new Color(
-                ModPrefs.GetFloat(Name, "RightRed", 0, true) / 255f,
-                ModPrefs.GetFloat(Name, "RightGreen", 192, true) / 255f,
-                ModPrefs.GetFloat(Name, "RightBlue", 255, true) / 255f
-            );
+            if (rightColorPreset == 0)
+                _colorRight = new Color(
+                    ModPrefs.GetInt(Name, "RightRed", 0, true) / 255,
+                    ModPrefs.GetInt(Name, "RightGreen", 192, true) / 255,
+                    ModPrefs.GetInt(Name, "RightBlue", 255, true) / 255
+                );
             else
                 _colorRight = ColorsUI.ColorPresets[rightColorPreset].Item1;
 
@@ -171,17 +174,17 @@ namespace CustomColors
 
             leftColor.SetColor(_colorLeft);
             rightColor.SetColor(_colorRight);
-            
+
             Log("ColorManager colors set!");
 
-            
+
             foreach (var scriptableColor in _scriptableColors)
             {
-                if (scriptableColor.name == "Color Red" || scriptableColor.name == "BaseColor1") 
+                if (scriptableColor.name == "Color Red" || scriptableColor.name == "BaseColor1")
                 {
                     scriptableColor.SetColor(_colorLeft);
                 }
-                else if (scriptableColor.name == "Color Blue" ||  scriptableColor.name == "BaseColor0")
+                else if (scriptableColor.name == "Color Blue" || scriptableColor.name == "BaseColor0")
                 {
                     scriptableColor.SetColor(_colorRight);
                 }
@@ -195,12 +198,12 @@ namespace CustomColors
                 if (prePassLight.name.Contains("-RightColor") || prePassLight.name.Contains("-LeftColor")) continue;
 
                 var oldCol = ReflectionUtil.GetPrivateField<Color>(prePassLight, "_color");
-                if (oldCol.r > 0.5) 
+                if (oldCol.r > 0.5)
                 {
                     prePassLight.name += "-LeftColor";
                     ReflectionUtil.SetPrivateField(prePassLight, "_color", _colorLeft);
                 }
-                else 
+                else
                 {
                     prePassLight.name += "-RightColor";
                     ReflectionUtil.SetPrivateField(prePassLight, "_color", _colorRight);
@@ -217,17 +220,19 @@ namespace CustomColors
             Log("Environment light colors set!");
 
             if (SceneManager.GetActiveScene().name == "Menu")
-            {            
+            {
                 var texts = UnityEngine.Object.FindObjectsOfType<TextMeshPro>();
                 foreach (var text in texts)
                 {
-                    if (text.name == "PP" || text.name == "SABER") {
+                    if (text.name == "PP" || text.name == "SABER")
+                    {
                         ReflectionUtil.SetPrivateField(text, "m_fontColor", _colorLeft);
                     }
-                    else if(text.name == "AT" || text.name == "B" || text.name == "E") {
+                    else if (text.name == "AT" || text.name == "B" || text.name == "E")
+                    {
                         ReflectionUtil.SetPrivateField(text, "m_fontColor", _colorRight);
                     }
-                    Log($"text: {text.name}");
+                    //Log($"text: {text.name}");
                 }
 
                 var flickeringLetter = UnityEngine.Object.FindObjectOfType<FlickeringNeonSign>();

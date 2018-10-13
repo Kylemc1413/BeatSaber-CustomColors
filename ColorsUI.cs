@@ -17,7 +17,6 @@ namespace CustomColors
 {
     class ColorsUI : MonoBehaviour
     {
-
         public static List<Tuple<Color, string>> ColorPresets = new List<Tuple<Color, string>>
         {
             {new Color(), "User"},
@@ -31,14 +30,6 @@ namespace CustomColors
             {new Color(1, 1, 1), "White"},
             {new Color(.3f ,.3f, .3f), "Black"},
         };
-
-        public static void fillArray(float[] a, int min, int max)
-        {
-            for (int i = min; i < max; i++)
-            {
-                a[i] = i;
-            }
-        }
 
         public static void CreateSettingsUI()
         {
@@ -104,6 +95,21 @@ namespace CustomColors
 
                 };
             }
+
+            var incrementValue = subMenuCC.AddList("User Color Increment", new float[] { 1, 5, 10, 25, 50, 100 });
+            incrementValue.GetValue += delegate
+            {
+                return ModPrefs.GetInt(Plugin.Name, "userIncrement", 0, true);
+            };
+            incrementValue.SetValue += delegate (float value)
+            {
+                ModPrefs.SetInt(Plugin.Name, "userIncrement", (int)value);
+                Plugin.userIncrement = (int)value;
+            };
+            incrementValue.FormatValue += delegate (float value)
+            {
+                return ((int)value).ToString();
+            };
 
             var subMenuUser = SettingsUI.CreateSubMenu("User Colors");
 

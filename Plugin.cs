@@ -43,7 +43,7 @@ namespace CustomColors
             _colorInit = false;
 
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
-            userIncrement = ModPrefs.GetInt(Plugin.Name, "User Color Increment", 10, true);
+            userIncrement = ModPrefs.GetInt(Plugin.Name, "userIncrement", 10, true);
         }
 
         public void OnApplicationQuit()

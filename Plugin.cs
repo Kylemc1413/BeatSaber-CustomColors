@@ -17,6 +17,9 @@ namespace CustomColors
         Color _colorLeft = new Color(1, 0, 0);
         Color _colorRight = new Color(0, 0, 1);
         bool _overrideCustomSabers = true;
+        public static int leftColorPreset = 0;
+        public static int rightColorPreset = 0;
+        public static int userIncrement;
 
         string IPlugin.Name => Name;
         string IPlugin.Version => Version;
@@ -37,6 +40,7 @@ namespace CustomColors
             _colorInit = false;
 
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
+            userIncrement = ModPrefs.GetInt(Plugin.Name, "User Color Increment", 10, true);
         }
 
         public void OnApplicationQuit()
@@ -70,19 +74,34 @@ namespace CustomColors
 
         void ReadPreferences()
         {
-            _colorLeft = new Color(
-                ModPrefs.GetFloat(Name, "LeftRed", 255, true) / 255f,
-                ModPrefs.GetFloat(Name, "LeftGreen", 4, true) / 255f,
-                ModPrefs.GetFloat(Name, "LeftBlue", 4, true) / 255f
-            );
+            leftColorPreset = ModPrefs.GetInt(Name, "leftColorPreset", 0, true);
+            rightColorPreset = ModPrefs.GetInt(Name, "rightColorPreset", 0, true);
+            //Make sure preset exists, else default to user
+            if (leftColorPreset > ColorsUI.ColorPresets.Count)
+                leftColorPreset = 0;
+            if (rightColorPreset > ColorsUI.ColorPresets.Count)
+                rightColorPreset = 0;
+            //If preset is user get modprefs for colors, otherwise use preset
+            if (leftColorPreset == 0)
+                _colorLeft = new Color(
+                    ModPrefs.GetFloat(Name, "LeftRed", 255, true) / 255f,
+                    ModPrefs.GetFloat(Name, "LeftGreen", 4, true) / 255f,
+                    ModPrefs.GetFloat(Name, "LeftBlue", 4, true) / 255f
+                );
+            else
+                _colorLeft = ColorsUI.ColorPresets[leftColorPreset].Item1;
 
+            if(rightColorPreset == 0)
             _colorRight = new Color(
                 ModPrefs.GetFloat(Name, "RightRed", 0, true) / 255f,
                 ModPrefs.GetFloat(Name, "RightGreen", 192, true) / 255f,
                 ModPrefs.GetFloat(Name, "RightBlue", 255, true) / 255f
             );
+            else
+                _colorRight = ColorsUI.ColorPresets[rightColorPreset].Item1;
 
             _overrideCustomSabers = ModPrefs.GetBool(Name, "OverrideCustomSabers", true, true);
+
         }
 
         void GetObjects()

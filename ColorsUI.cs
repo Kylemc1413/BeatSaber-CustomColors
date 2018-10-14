@@ -30,6 +30,19 @@ namespace CustomColors
             {new Color(1, 1, 1), "White"},
             {new Color(.3f ,.3f, .3f), "Black"},
         };
+        public static List<Tuple<Color, string>> WallPresets = new List<Tuple<Color, string>>
+        {
+            {new Color(), "Default" },
+            {new Color(), "User Left" },
+            {new Color(), "User Right" },
+            {new Color(0, .98f, 2.157f), "Electric Blue"},
+            {new Color(0, 1, 0), "Green"},
+            {new Color(1.05f, 0, 2.188f), "Purple"},
+            {new Color(2.157f ,.588f, 0), "Orange"},
+            {new Color(2.157f, 1.76f, 0), "Yellow" },
+            {new Color(1, 1, 1), "White"},
+            {new Color(.3f ,.3f, .3f), "Black"},
+        };
 
         public static void CreateSettingsUI()
         {
@@ -56,12 +69,20 @@ namespace CustomColors
             saberOverrideL.SetValue += delegate (bool value) { ModPrefs.SetBool(Plugin.Name, "OverrideCustomSabers", value); };
 
             // Custom Colored Walls
+            float[] wallPresetValues = new float[WallPresets.Count];
+            for (int i = 0; i < WallPresets.Count; i++) wallPresetValues[i] = i;
+
+            var customColoredWalls = subMenuCC.AddList("Wall Color", wallPresetValues);
+            customColoredWalls.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "customWallColor", 0, true); };
+            customColoredWalls.SetValue += delegate (float value) { ModPrefs.SetInt(Plugin.Name, "customWallColor", (int)value); };
+            customColoredWalls.FormatValue += delegate (float value) { return WallPresets[(int)value].Item2; };
+            /*
             var customColoredWalls = subMenuCC.AddList("Custom Wall Color", new float[] { 0, 1, 2 });
             var wallNames = new string[] { "Off", "Left Color", "Right Color" };
             customColoredWalls.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "customWallColor", 1, true); };
             customColoredWalls.SetValue += delegate (float value) { ModPrefs.SetInt(Plugin.Name, "customWallColor", (int)value); };
             customColoredWalls.FormatValue += delegate (float value) { return wallNames[(int)value]; };
-
+            */
             bool saberTailorInstalled = checkSaberTailor();
             if (saberTailorInstalled == true)
             {

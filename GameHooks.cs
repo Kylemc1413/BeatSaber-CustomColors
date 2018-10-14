@@ -26,11 +26,17 @@ namespace CustomColors {
         public static void StretchableCube_Awake(StretchableCube t)
         {
             _stretchableCube_Awake.InvokeOriginal(t);
-
+            Color col;
             if (Plugin.customWallColor == 0) return;
-
-            Color col = Plugin.customWallColor == 1 ? Plugin.ColorLeft : Plugin.ColorRight;
-            
+            if (Plugin.customWallColor == 1)
+                col = Plugin.ColorLeft;
+            else if (Plugin.customWallColor == 2)
+                col = Plugin.ColorRight;
+            else
+                col = ColorsUI.WallPresets[Plugin.customWallColor].Item1;
+            col.r = col.r / 4f;
+            col.g = col.g / 4f;
+            col.b = col.b / 4f;
             foreach (Transform component in t.transform.parent.parent)
             {
                 foreach (Transform child in component.transform)
@@ -45,7 +51,7 @@ namespace CustomColors {
             Mesh mesh = t.GetComponent<MeshFilter>().mesh;
             Vector3[] vertices = mesh.vertices;
             Color[] colors = new Color[vertices.Length];
-            for (int i = 0; i < vertices.Length; i++) colors[i] = colors[i].ColorWithAlpha(0.4f);
+            for (int i = 0; i < vertices.Length; i++) colors[i] = colors[i].ColorWithAlpha(0.9f);
             mesh.colors = colors;
         }
     }

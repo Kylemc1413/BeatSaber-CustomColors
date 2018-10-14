@@ -40,144 +40,76 @@ namespace CustomColors
 
             //Left Color Preset
             var leftPreset = subMenuCC.AddList("Left Color Preset", presetValues);
-            leftPreset.GetValue += delegate
-            {
-                return ModPrefs.GetInt(Plugin.Name, "leftColorPreset", 0, true);
-            };
-            leftPreset.SetValue += delegate (float value)
-            {
-                ModPrefs.SetInt(Plugin.Name, "leftColorPreset", (int)value);
-            };
-            leftPreset.FormatValue += delegate (float value)
-            {
-                return ColorPresets[(int)value].Item2;
-            };
+            leftPreset.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "leftColorPreset", 0, true); };
+            leftPreset.SetValue += delegate (float value) { ModPrefs.SetInt(Plugin.Name, "leftColorPreset", (int)value); };
+            leftPreset.FormatValue += delegate (float value) { return ColorPresets[(int)value].Item2; };
 
             //Right Color Preset
             var rightPreset = subMenuCC.AddList("Right Color Preset", presetValues);
-            rightPreset.GetValue += delegate
-            {
-                return ModPrefs.GetInt(Plugin.Name, "rightColorPreset", 0, true);
-            };
-            rightPreset.SetValue += delegate (float value)
-            {
-                ModPrefs.SetInt(Plugin.Name, "rightColorPreset", (int)value);
-            };
-            rightPreset.FormatValue += delegate (float value)
-            {
-                return ColorPresets[(int)value].Item2;
-            };
+            rightPreset.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "rightColorPreset", 0, true); };
+            rightPreset.SetValue += delegate (float value) { ModPrefs.SetInt(Plugin.Name, "rightColorPreset", (int)value); };
+            rightPreset.FormatValue += delegate (float value) { return ColorPresets[(int)value].Item2; };
 
             //Saber Override Setting for Left menu
             var saberOverrideL = subMenuCC.AddBool("Override Custom Saber Color");
-            saberOverrideL.GetValue += delegate
-            {
-                return ModPrefs.GetBool(Plugin.Name, "OverrideCustomSabers", true, true);
-            };
+            saberOverrideL.GetValue += delegate { return ModPrefs.GetBool(Plugin.Name, "OverrideCustomSabers", true, true); };
+            saberOverrideL.SetValue += delegate (bool value) { ModPrefs.SetBool(Plugin.Name, "OverrideCustomSabers", value); };
 
-            saberOverrideL.SetValue += delegate (bool value)
-            {
-                ModPrefs.SetBool(Plugin.Name, "OverrideCustomSabers", value);
-            };
+            // Walls use left color
+            var wallsUseLeftColor = subMenuCC.AddBool("Walls Use Left Color");
+            wallsUseLeftColor.GetValue += delegate { return ModPrefs.GetBool(Plugin.Name, "wallsUseLeftColor", true, true); };
+            wallsUseLeftColor.SetValue += delegate (bool value) { ModPrefs.SetBool(Plugin.Name, "wallsUseLeftColor", value); };
 
             bool saberTailorInstalled = checkSaberTailor();
             if (saberTailorInstalled == true)
             {
                 //Trail adjustment if Saber Tailor is installed
                 var SaberTrails = subMenuCC.AddInt("Trail Length", 0, 100, 1);
-                SaberTrails.GetValue += delegate
-                {
-                    return ModPrefs.GetInt("SaberTailor", "TrailLength", 20, true);
-                };
-                SaberTrails.SetValue += delegate (int value)
-                {
-                    ModPrefs.SetInt("SaberTailor", "TrailLength", (int)value);
-
-                };
+                SaberTrails.GetValue += delegate { return ModPrefs.GetInt("SaberTailor", "TrailLength", 20, true); };
+                SaberTrails.SetValue += delegate (int value) { ModPrefs.SetInt("SaberTailor", "TrailLength", (int)value); };
             }
 
             var subMenuUser = SettingsUI.CreateSubMenu("User Colors");
 
             //Left Red
             var LeftR = subMenuUser.AddInt("User Left Red", Plugin.Min, Plugin.Max, Plugin.userIncrement);
-            LeftR.GetValue += delegate
-            {
-                return ModPrefs.GetInt(Plugin.Name, "LeftRed", 255, true);
-            };
-            LeftR.SetValue += delegate (int value)
-            {
-                ModPrefs.SetInt(Plugin.Name, "LeftRed", value);
-            };
+            LeftR.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "LeftRed", 255, true); };
+            LeftR.SetValue += delegate (int value) { ModPrefs.SetInt(Plugin.Name, "LeftRed", value); };
 
             //Left Green
             var LeftG = subMenuUser.AddInt("User Left Green", Plugin.Min, Plugin.Max, Plugin.userIncrement);
-            LeftG.GetValue += delegate
-            {
-                return ModPrefs.GetInt(Plugin.Name, "LeftGreen", 255, true);
-            };
-            LeftG.SetValue += delegate (int value)
-            {
-                ModPrefs.SetInt(Plugin.Name, "LeftGreen", value);
-            };
+            LeftG.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "LeftGreen", 255, true); };
+            LeftG.SetValue += delegate (int value) { ModPrefs.SetInt(Plugin.Name, "LeftGreen", value); };
 
             //Left Blue
             var LeftB = subMenuUser.AddInt("User Left Blue", Plugin.Min, Plugin.Max, Plugin.userIncrement);
-            LeftB.GetValue += delegate
-            {
-                return ModPrefs.GetInt(Plugin.Name, "LeftBlue", 255, true);
-            };
-            LeftB.SetValue += delegate (int value)
-            {
-                ModPrefs.SetInt(Plugin.Name, "LeftBlue", value);
-            };
+            LeftB.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "LeftBlue", 255, true); };
+            LeftB.SetValue += delegate (int value) { ModPrefs.SetInt(Plugin.Name, "LeftBlue", value); };
 
             //Right Red
             var RightR = subMenuUser.AddInt("User Right Red", Plugin.Min, Plugin.Max, Plugin.userIncrement);
-            RightR.GetValue += delegate
-            {
-                return ModPrefs.GetInt(Plugin.Name, "RightRed", 255, true);
-            };
-            RightR.SetValue += delegate (int value)
-            {
-                ModPrefs.SetInt(Plugin.Name, "RightRed", value);
-            };
+            RightR.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "RightRed", 255, true); };
+            RightR.SetValue += delegate (int value) { ModPrefs.SetInt(Plugin.Name, "RightRed", value); };
 
             //Right Green
             var RightG = subMenuUser.AddInt("User Right Green", Plugin.Min, Plugin.Max, Plugin.userIncrement);
-            RightG.GetValue += delegate
-            {
-                return ModPrefs.GetInt(Plugin.Name, "RightGreen", 255, true);
-            };
-            RightG.SetValue += delegate (int value)
-            {
-                ModPrefs.SetInt(Plugin.Name, "RightGreen", value);
-            };
+            RightG.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "RightGreen", 255, true); };
+            RightG.SetValue += delegate (int value) { ModPrefs.SetInt(Plugin.Name, "RightGreen", value); };
 
             //Right Blue
             var RightB = subMenuUser.AddInt("User Right Blue", Plugin.Min, Plugin.Max, Plugin.userIncrement);
-            RightB.GetValue += delegate
-            {
-                return ModPrefs.GetInt(Plugin.Name, "RightBlue", 255, true);
-            };
-            RightB.SetValue += delegate (int value)
-            {
-                ModPrefs.SetInt(Plugin.Name, "RightBlue", value);
-            };
+            RightB.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "RightBlue", 255, true); };
+            RightB.SetValue += delegate (int value) { ModPrefs.SetInt(Plugin.Name, "RightBlue", value); };
             
+            // Increment Modifier
             var incrementValue = subMenuCC.AddList("User Color Increment", new float[] { 1, 5, 10, 25, 50, 100 });
-            incrementValue.GetValue += delegate
-            {
-                return ModPrefs.GetInt(Plugin.Name, "userIncrement", 0, true);
-            };
+            incrementValue.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "userIncrement", 0, true); };
             incrementValue.SetValue += delegate (float value)
             {
                 ModPrefs.SetInt(Plugin.Name, "userIncrement", (int)value);
                 new IntViewController[] { LeftR, LeftG, LeftB, RightR, RightG, RightB }.ToList().ForEach((controller) => { controller.UpdateIncrement((int)value); });
             };
-            incrementValue.FormatValue += delegate (float value)
-            {
-                return ((int)value).ToString();
-            };
+            incrementValue.FormatValue += delegate (float value) { return ((int)value).ToString(); };
         }
 
         public static bool checkSaberTailor()

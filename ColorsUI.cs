@@ -96,21 +96,6 @@ namespace CustomColors
                 };
             }
 
-            var incrementValue = subMenuCC.AddList("User Color Increment", new float[] { 1, 5, 10, 25, 50, 100 });
-            incrementValue.GetValue += delegate
-            {
-                return ModPrefs.GetInt(Plugin.Name, "userIncrement", 0, true);
-            };
-            incrementValue.SetValue += delegate (float value)
-            {
-                ModPrefs.SetInt(Plugin.Name, "userIncrement", (int)value);
-                Plugin.userIncrement = (int)value;
-            };
-            incrementValue.FormatValue += delegate (float value)
-            {
-                return ((int)value).ToString();
-            };
-
             var subMenuUser = SettingsUI.CreateSubMenu("User Colors");
 
             //Left Red
@@ -177,6 +162,21 @@ namespace CustomColors
             RightB.SetValue += delegate (int value)
             {
                 ModPrefs.SetInt(Plugin.Name, "RightBlue", value);
+            };
+            
+            var incrementValue = subMenuCC.AddList("User Color Increment", new float[] { 1, 5, 10, 25, 50, 100 });
+            incrementValue.GetValue += delegate
+            {
+                return ModPrefs.GetInt(Plugin.Name, "userIncrement", 0, true);
+            };
+            incrementValue.SetValue += delegate (float value)
+            {
+                ModPrefs.SetInt(Plugin.Name, "userIncrement", (int)value);
+                new IntViewController[] { LeftR, LeftG, LeftB, RightR, RightG, RightB }.ToList().ForEach((controller) => { controller.UpdateIncrement((int)value); });
+            };
+            incrementValue.FormatValue += delegate (float value)
+            {
+                return ((int)value).ToString();
             };
         }
 

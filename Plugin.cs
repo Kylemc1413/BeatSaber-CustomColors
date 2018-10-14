@@ -43,7 +43,6 @@ namespace CustomColors
             _colorInit = false;
 
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
-            userIncrement = ModPrefs.GetInt(Plugin.Name, "userIncrement", 10, true);
         }
 
         public void OnApplicationQuit()
@@ -77,6 +76,7 @@ namespace CustomColors
 
         void ReadPreferences()
         {
+            userIncrement = ModPrefs.GetInt(Name, "userIncrement", 10, true);
             leftColorPreset = ModPrefs.GetInt(Name, "leftColorPreset", 0, true);
             rightColorPreset = ModPrefs.GetInt(Name, "rightColorPreset", 0, true);
             //Make sure preset exists, else default to user
@@ -87,8 +87,8 @@ namespace CustomColors
             //If preset is user get modprefs for colors, otherwise use preset
             if (leftColorPreset == 0)
                 _colorLeft = new Color(
-                    ModPrefs.GetInt(Name, "LeftRed", 255, true) / 255,
-                    ModPrefs.GetInt(Name, "LeftGreen", 4, true) / 255,
+                    ModPrefs.GetInt(Name, "LeftRed", 255, true) / 255f,
+                    ModPrefs.GetInt(Name, "LeftGreen", 4, true) / 255f,
                     ModPrefs.GetInt(Name, "LeftBlue", 4, true) / 255f
                 );
             else
@@ -96,9 +96,9 @@ namespace CustomColors
 
             if (rightColorPreset == 0)
                 _colorRight = new Color(
-                    ModPrefs.GetInt(Name, "RightRed", 0, true) / 255,
-                    ModPrefs.GetInt(Name, "RightGreen", 192, true) / 255,
-                    ModPrefs.GetInt(Name, "RightBlue", 255, true) / 255
+                    ModPrefs.GetInt(Name, "RightRed", 0, true) / 255f,
+                    ModPrefs.GetInt(Name, "RightGreen", 192, true) / 255f,
+                    ModPrefs.GetInt(Name, "RightBlue", 255, true) / 255f
                 );
             else
                 _colorRight = ColorsUI.ColorPresets[rightColorPreset].Item1;

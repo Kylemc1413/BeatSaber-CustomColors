@@ -107,7 +107,7 @@ namespace CustomColors
         private int _value;
         protected int _min;
         protected int _max;
-        //protected int _increment;
+        protected int _increment;
 
         protected abstract int GetInitValue();
         protected abstract void ApplyValue(int value);
@@ -131,13 +131,13 @@ namespace CustomColors
         }
         public override void IncButtonPressed()
         {
-            this._value += Plugin.userIncrement;
+            this._value += _increment;
             if (this._value > _max) this._value = _max;
             this.RefreshUI();
         }
         public override void DecButtonPressed()
         {
-            this._value -= Plugin.userIncrement;
+            this._value -= _increment;
             if (this._value < _min) this._value = _min;
             this.RefreshUI();
         }
@@ -155,19 +155,19 @@ namespace CustomColors
         {
             _min = min;
             _max = max;
-            //_increment = increment;
+            _increment = increment;
         }
 
         public void UpdateIncrement(int increment)
         {
-            //_increment = increment;
+            _increment = increment;
         }
 
         private int FixValue(int value)
         {
-            if (value % Plugin.userIncrement != 0)
+            if (value % _increment != 0)
             {
-                value -= (value % Plugin.userIncrement);
+                value -= (value % _increment);
             }
             if (value > _max) value = _max;
             if (value < _min) value = _min;

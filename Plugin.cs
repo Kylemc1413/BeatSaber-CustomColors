@@ -19,7 +19,7 @@ namespace CustomColors
         bool _overrideCustomSabers = true;
         public static int leftColorPreset = 0;
         public static int rightColorPreset = 0;
-        public static bool wallsUseLeftColor = true;
+        public static int customWallColor = 1;
         public static int userIncrement;
 
         public const int Max = 3000;
@@ -72,7 +72,7 @@ namespace CustomColors
             userIncrement = ModPrefs.GetInt(Name, "userIncrement", 10, true);
             leftColorPreset = ModPrefs.GetInt(Name, "leftColorPreset", 0, true);
             rightColorPreset = ModPrefs.GetInt(Name, "rightColorPreset", 0, true);
-            wallsUseLeftColor = ModPrefs.GetBool(Name, "wallsUseLeftColor", true, true);
+            customWallColor = ModPrefs.GetInt(Name, "customWallColor", 1, true);
             //Make sure preset exists, else default to user
             if (leftColorPreset > ColorsUI.ColorPresets.Count)
                 leftColorPreset = 0;

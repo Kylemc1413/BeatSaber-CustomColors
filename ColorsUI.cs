@@ -55,10 +55,12 @@ namespace CustomColors
             saberOverrideL.GetValue += delegate { return ModPrefs.GetBool(Plugin.Name, "OverrideCustomSabers", true, true); };
             saberOverrideL.SetValue += delegate (bool value) { ModPrefs.SetBool(Plugin.Name, "OverrideCustomSabers", value); };
 
-            // Walls use left color
-            var wallsUseLeftColor = subMenuCC.AddBool("Walls Use Left Color");
-            wallsUseLeftColor.GetValue += delegate { return ModPrefs.GetBool(Plugin.Name, "wallsUseLeftColor", true, true); };
-            wallsUseLeftColor.SetValue += delegate (bool value) { ModPrefs.SetBool(Plugin.Name, "wallsUseLeftColor", value); };
+            // Custom Colored Walls
+            var customColoredWalls = subMenuCC.AddList("Custom Wall Color", new float[] { 0, 1, 2 });
+            var wallNames = new string[] { "Off", "Left Color", "Right Color" };
+            customColoredWalls.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "customWallColor", 1, true); };
+            customColoredWalls.SetValue += delegate (float value) { ModPrefs.SetInt(Plugin.Name, "customWallColor", (int)value); };
+            customColoredWalls.FormatValue += delegate (float value) { return wallNames[(int)value]; };
 
             bool saberTailorInstalled = checkSaberTailor();
             if (saberTailorInstalled == true)

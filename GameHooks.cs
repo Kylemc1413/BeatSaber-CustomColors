@@ -27,7 +27,9 @@ namespace CustomColors {
         {
             _stretchableCube_Awake.InvokeOriginal(t);
 
-            Color col = Plugin.wallsUseLeftColor ? Plugin.ColorLeft : Plugin.ColorRight;
+            if (Plugin.customWallColor == 0) return;
+
+            Color col = Plugin.customWallColor == 1 ? Plugin.ColorLeft : Plugin.ColorRight;
             
             foreach (Transform component in t.transform.parent.parent)
             {

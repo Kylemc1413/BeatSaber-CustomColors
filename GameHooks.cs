@@ -33,10 +33,8 @@ namespace CustomColors {
             else if (Plugin.customWallColor == 2)
                 col = Plugin.ColorRight;
             else
-                col = ColorsUI.WallPresets[Plugin.customWallColor].Item1;
-            col.r = col.r / 4f;
-            col.g = col.g / 4f;
-            col.b = col.b / 4f;
+                col = ColorsUI.OtherPresets[Plugin.customWallColor].Item1;
+
             foreach (Transform component in t.transform.parent.parent)
             {
                 foreach (Transform child in component.transform)
@@ -46,13 +44,7 @@ namespace CustomColors {
             }
 
             MeshRenderer r = t.GetComponent<MeshRenderer>();
-            r.material.SetColor("_AddColor", col.ColorWithAlpha(0f));
-
-            Mesh mesh = t.GetComponent<MeshFilter>().mesh;
-            Vector3[] vertices = mesh.vertices;
-            Color[] colors = new Color[vertices.Length];
-            for (int i = 0; i < vertices.Length; i++) colors[i] = colors[i].ColorWithAlpha(1f);
-            mesh.colors = colors;
+            r.material.SetColor("_AddColor", (col/4f).ColorWithAlpha(0f));
         }
     }
 }

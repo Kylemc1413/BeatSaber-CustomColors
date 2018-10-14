@@ -51,7 +51,7 @@ namespace CustomColors {
             Mesh mesh = t.GetComponent<MeshFilter>().mesh;
             Vector3[] vertices = mesh.vertices;
             Color[] colors = new Color[vertices.Length];
-            for (int i = 0; i < vertices.Length; i++) colors[i] = colors[i].ColorWithAlpha(0.9f);
+            for (int i = 0; i < vertices.Length; i++) colors[i] = colors[i].ColorWithAlpha(1f);
             mesh.colors = colors;
         }
     }

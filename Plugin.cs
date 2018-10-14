@@ -43,7 +43,6 @@ namespace CustomColors
             _colorInit = false;
 
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
-            userIncrement = ModPrefs.GetInt(Plugin.Name, "userIncrement", 10, true);
         }
 
         public void OnApplicationQuit()
@@ -77,6 +76,7 @@ namespace CustomColors
 
         void ReadPreferences()
         {
+            userIncrement = ModPrefs.GetInt(Name, "userIncrement", 10, true);
             leftColorPreset = ModPrefs.GetInt(Name, "leftColorPreset", 0, true);
             rightColorPreset = ModPrefs.GetInt(Name, "rightColorPreset", 0, true);
             //Make sure preset exists, else default to user

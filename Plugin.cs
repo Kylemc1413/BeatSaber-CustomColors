@@ -16,10 +16,14 @@ namespace CustomColors
 
         public static Color ColorLeft = new Color(1, 0, 0);
         public static Color ColorRight = new Color(0, 0, 1);
+        public static Color ColorLeftLight = new Color(1, 0, 0);
+        public static Color ColorRightLight = new Color(0, 0, 1);
         bool _overrideCustomSabers = true;
         public static int leftColorPreset = 0;
         public static int rightColorPreset = 0;
         public static int customWallColor = 0;
+        public static int leftLightPreset = 0;
+        public static int rightLightPreset = 0;
         public static int userIncrement;
 
         public const int Max = 3000;
@@ -73,11 +77,16 @@ namespace CustomColors
             leftColorPreset = ModPrefs.GetInt(Name, "leftColorPreset", 0, true);
             rightColorPreset = ModPrefs.GetInt(Name, "rightColorPreset", 0, true);
             customWallColor = ModPrefs.GetInt(Name, "customWallColor", 0, true);
+            leftLightPreset = ModPrefs.GetInt(Name, "leftLightPreset", 1, true);
+            rightLightPreset = ModPrefs.GetInt(Name, "rightLightPreset", 2, true);
+
             //Make sure preset exists, else default to user
-            if (leftColorPreset > ColorsUI.ColorPresets.Count)
-                leftColorPreset = 0;
-            if (rightColorPreset > ColorsUI.ColorPresets.Count)
-                rightColorPreset = 0;
+            if (leftColorPreset > ColorsUI.ColorPresets.Count) leftColorPreset = 0;                
+            if (rightColorPreset > ColorsUI.ColorPresets.Count) rightColorPreset = 0;
+            if (leftLightPreset > ColorsUI.OtherPresets.Count) leftLightPreset = 0;
+            if (rightLightPreset > ColorsUI.OtherPresets.Count) rightLightPreset = 0;
+            if (customWallColor > ColorsUI.OtherPresets.Count) customWallColor = 0;
+
             //If preset is user get modprefs for colors, otherwise use preset
             if (leftColorPreset == 0)
                 ColorLeft = new Color(
@@ -98,6 +107,39 @@ namespace CustomColors
                 ColorRight = ColorsUI.ColorPresets[rightColorPreset].Item1;
 
             _overrideCustomSabers = ModPrefs.GetBool(Name, "OverrideCustomSabers", true, true);
+            //Set Light colors
+            switch (leftLightPreset)
+            {
+                case 0:
+                    ColorLeftLight = new Color(1, 4 /255f, 4/255f);
+                    break;
+                case 1:
+                    ColorLeftLight = ColorLeft;
+                    break;
+                case 2:
+                    ColorLeftLight = ColorRight;
+                    break;
+                default:
+                    ColorLeftLight = ColorsUI.OtherPresets[leftLightPreset].Item1;
+                    break;
+
+            }
+            switch (rightLightPreset)
+            {
+                case 0:
+                    ColorRightLight = new Color(0, 192/255f, 1);
+                    break;
+                case 1:
+                    ColorRightLight = ColorRight;
+                    break;
+                case 2:
+                    ColorRightLight = ColorRight;
+                    break;
+                default:
+                    ColorRightLight = ColorsUI.OtherPresets[rightLightPreset].Item1;
+                    break;
+
+            }
 
         }
 
@@ -174,6 +216,7 @@ namespace CustomColors
 
             foreach (var scriptableColor in _scriptableColors)
             {
+                /*
                 if (scriptableColor.name == "Color Red" || scriptableColor.name == "BaseColor1")
                 {
                     scriptableColor.SetColor(ColorLeft);
@@ -182,7 +225,17 @@ namespace CustomColors
                 {
                     scriptableColor.SetColor(ColorRight);
                 }
-                //Log($"Set scriptable color: {scriptableColor.name}");
+                */
+                if (scriptableColor.name == "Color Red")
+                     scriptableColor.SetColor(ColorLeft);
+                else if (scriptableColor.name == "BaseColor1")
+                    scriptableColor.SetColor(ColorLeftLight);
+                else if (scriptableColor.name == "Color Blue")
+                    scriptableColor.SetColor(ColorRight);
+                else if (scriptableColor.name == "BaseColor0")
+                    scriptableColor.SetColor(ColorRightLight);
+
+                //         Log($"Set scriptable color: {scriptableColor.name}");
             }
             Log("ScriptableColors modified!");
 
@@ -195,12 +248,12 @@ namespace CustomColors
                 if (oldCol.r > 0.5)
                 {
                     prePassLight.name += "-LeftColor";
-                    ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorLeft);
+                    ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorLeftLight);
                 }
                 else
                 {
                     prePassLight.name += "-RightColor";
-                    ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorRight);
+                    ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorRightLight);
                 }
                 //Log($"PrepassLight: {prePassLight.name}");
             }
@@ -209,7 +262,7 @@ namespace CustomColors
 
             foreach (var light in _environmentLights)
             {
-                light.SetColor("_Color", new Color(ColorRight.r * 0.5f, ColorRight.g * 0.5f, ColorRight.b * 0.5f, 1.0f));
+                light.SetColor("_Color", new Color(ColorRightLight.r * 0.5f, ColorRightLight.g * 0.5f, ColorRightLight.b * 0.5f, 1.0f));
             }
             Log("Environment light colors set!");
 

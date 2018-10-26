@@ -161,5 +161,19 @@ namespace CustomColors
             }
             return result;
         }
+        public static bool checkCT()
+        {
+            bool result = false;
+            foreach (IPlugin plugin in PluginManager.Plugins)
+            {
+                if (plugin.ToString() == "ChromaToggle.Plugin")
+                {
+                    Plugin.Log("ChromaToggle Detected, Disabling Custom Colors");
+                    result = true;
+                }
+
+            }
+            return result;
+        }
     }
 }

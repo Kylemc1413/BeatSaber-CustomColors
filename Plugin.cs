@@ -11,17 +11,21 @@ namespace CustomColors
 {
     public class Plugin : IPlugin
     {
-        public const string Name = "CustomColors";
+        public const string Name = "CustomColorsEdit";
         public const string Version = "1.3.0";
 
         public static Color ColorLeft = new Color(1, 0, 0);
         public static Color ColorRight = new Color(0, 0, 1);
+        public static Color ColorLeftLight = new Color(1, 0, 0);
+        public static Color ColorRightLight = new Color(0, 0, 1);
         bool _overrideCustomSabers = true;
         public static int leftColorPreset = 0;
         public static int rightColorPreset = 0;
-        public static int customWallColor = 1;
+        public static int customWallColor = 0;
+        public static int leftLightPreset = 0;
+        public static int rightLightPreset = 0;
         public static int userIncrement;
-
+        public static bool ctInstalled = false;
         public const int Max = 3000;
         public const int Min = 0;
 
@@ -38,14 +42,16 @@ namespace CustomColors
 
         public void OnApplicationStart()
         {
+            ctInstalled = ColorsUI.checkCT();
             if (_init) return;
             _init = true;
 
             _colorInit = false;
-
+            if(ctInstalled == false)
             GameHooks.Initialize();
 
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
+
         }
 
         public void OnApplicationQuit()
@@ -57,63 +63,111 @@ namespace CustomColors
 
         void SceneManagerOnActiveSceneChanged(Scene arg0, Scene scene)
         {
-            if (scene.name == "Menu")
+            if (ctInstalled == false)
             {
-                ColorsUI.CreateSettingsUI();
+                if (scene.name == "Menu")
+                {
+                    ColorsUI.CreateSettingsUI();
+                }
+
+                ReadPreferences();
+                GetObjects();
+                InvalidateColors();
             }
 
-            ReadPreferences();
-            GetObjects();
-            InvalidateColors();
         }
-        
+
         void ReadPreferences()
         {
-            userIncrement = ModPrefs.GetInt(Name, "userIncrement", 10, true);
-            leftColorPreset = ModPrefs.GetInt(Name, "leftColorPreset", 0, true);
-            rightColorPreset = ModPrefs.GetInt(Name, "rightColorPreset", 0, true);
-            customWallColor = ModPrefs.GetInt(Name, "customWallColor", 1, true);
-            //Make sure preset exists, else default to user
-            if (leftColorPreset > ColorsUI.ColorPresets.Count)
-                leftColorPreset = 0;
-            if (rightColorPreset > ColorsUI.ColorPresets.Count)
-                rightColorPreset = 0;
-            //If preset is user get modprefs for colors, otherwise use preset
-            if (leftColorPreset == 0)
-                ColorLeft = new Color(
-                    ModPrefs.GetInt(Name, "LeftRed", 255, true) / 255f,
-                    ModPrefs.GetInt(Name, "LeftGreen", 4, true) / 255f,
-                    ModPrefs.GetInt(Name, "LeftBlue", 4, true) / 255f
-                );
-            else
-                ColorLeft = ColorsUI.ColorPresets[leftColorPreset].Item1;
+            if (ctInstalled == false)
+            {
+                userIncrement = ModPrefs.GetInt(Name, "userIncrement", 10, true);
+                leftColorPreset = ModPrefs.GetInt(Name, "leftColorPreset", 0, true);
+                rightColorPreset = ModPrefs.GetInt(Name, "rightColorPreset", 0, true);
+                customWallColor = ModPrefs.GetInt(Name, "customWallColor", 0, true);
+                leftLightPreset = ModPrefs.GetInt(Name, "leftLightPreset", 1, true);
+                rightLightPreset = ModPrefs.GetInt(Name, "rightLightPreset", 2, true);
 
-            if (rightColorPreset == 0)
-                ColorRight = new Color(
-                    ModPrefs.GetInt(Name, "RightRed", 0, true) / 255f,
-                    ModPrefs.GetInt(Name, "RightGreen", 192, true) / 255f,
-                    ModPrefs.GetInt(Name, "RightBlue", 255, true) / 255f
-                );
-            else
-                ColorRight = ColorsUI.ColorPresets[rightColorPreset].Item1;
+                //Make sure preset exists, else default to user
+                if (leftColorPreset > ColorsUI.ColorPresets.Count) leftColorPreset = 0;
+                if (rightColorPreset > ColorsUI.ColorPresets.Count) rightColorPreset = 0;
+                if (leftLightPreset > ColorsUI.OtherPresets.Count) leftLightPreset = 0;
+                if (rightLightPreset > ColorsUI.OtherPresets.Count) rightLightPreset = 0;
+                if (customWallColor > ColorsUI.OtherPresets.Count) customWallColor = 0;
 
-            _overrideCustomSabers = ModPrefs.GetBool(Name, "OverrideCustomSabers", true, true);
+                //If preset is user get modprefs for colors, otherwise use preset
+                if (leftColorPreset == 0)
+                    ColorLeft = new Color(
+                        ModPrefs.GetInt(Name, "LeftRed", 255, true) / 255f,
+                        ModPrefs.GetInt(Name, "LeftGreen", 4, true) / 255f,
+                        ModPrefs.GetInt(Name, "LeftBlue", 4, true) / 255f
+                    );
+                else
+                    ColorLeft = ColorsUI.ColorPresets[leftColorPreset].Item1;
+
+                if (rightColorPreset == 0)
+                    ColorRight = new Color(
+                        ModPrefs.GetInt(Name, "RightRed", 0, true) / 255f,
+                        ModPrefs.GetInt(Name, "RightGreen", 192, true) / 255f,
+                        ModPrefs.GetInt(Name, "RightBlue", 255, true) / 255f
+                    );
+                else
+                    ColorRight = ColorsUI.ColorPresets[rightColorPreset].Item1;
+
+                _overrideCustomSabers = ModPrefs.GetBool(Name, "OverrideCustomSabers", true, true);
+                //Set Light colors
+                switch (leftLightPreset)
+                {
+                    case 0:
+                        ColorLeftLight = new Color(1, 4 / 255f, 4 / 255f);
+                        break;
+                    case 1:
+                        ColorLeftLight = ColorLeft;
+                        break;
+                    case 2:
+                        ColorLeftLight = ColorRight;
+                        break;
+                    default:
+                        ColorLeftLight = ColorsUI.OtherPresets[leftLightPreset].Item1;
+                        break;
+
+                }
+                switch (rightLightPreset)
+                {
+                    case 0:
+                        ColorRightLight = new Color(0, 192 / 255f, 1);
+                        break;
+                    case 1:
+                        ColorRightLight = ColorRight;
+                        break;
+                    case 2:
+                        ColorRightLight = ColorRight;
+                        break;
+                    default:
+                        ColorRightLight = ColorsUI.OtherPresets[rightLightPreset].Item1;
+                        break;
+
+                }
+            }
 
         }
 
         void GetObjects()
         {
-            _scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
-            _prePassLights = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>();
+            if (ctInstalled == false)
+            {
+                _scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
+                _prePassLights = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>();
 
-            var renderers = UnityEngine.Object.FindObjectsOfType<Renderer>();
-            _environmentLights.Clear();
-            _environmentLights.AddRange(
-                renderers
-                    .Where(renderer => renderer.materials.Length > 0)
-                    .Select(renderer => renderer.material)
-                    .Where(material => material.shader.name == "Custom/ParametricBox" || material.shader.name == "Custom/ParametricBoxOpaque")
-            );
+                var renderers = UnityEngine.Object.FindObjectsOfType<Renderer>();
+                _environmentLights.Clear();
+                _environmentLights.AddRange(
+                    renderers
+                        .Where(renderer => renderer.materials.Length > 0)
+                        .Select(renderer => renderer.material)
+                        .Where(material => material.shader.name == "Custom/ParametricBox" || material.shader.name == "Custom/ParametricBoxOpaque")
+                );
+            }
         }
 
         void InvalidateColors()
@@ -154,90 +208,104 @@ namespace CustomColors
 
         public void OnUpdate()
         {
-            if (_colorInit && _overrideCustomSabers)
-                EnsureCustomSabersOverridden();
-
-            if (_colorInit) return;
-
-
-            var colorManager = Resources.FindObjectsOfTypeAll<ColorManager>().FirstOrDefault();
-            if (colorManager == null) return;
-
-            var leftColor = ReflectionUtil.GetPrivateField<SimpleColorSO>(colorManager, "_colorA");
-            var rightColor = ReflectionUtil.GetPrivateField<SimpleColorSO>(colorManager, "_colorB");
-
-            leftColor.SetColor(ColorLeft);
-            rightColor.SetColor(ColorRight);
-
-            Log("ColorManager colors set!");
-
-
-            foreach (var scriptableColor in _scriptableColors)
+            if (ctInstalled == false)
             {
-                if (scriptableColor.name == "Color Red" || scriptableColor.name == "BaseColor1")
+                if (_colorInit && _overrideCustomSabers)
+                    EnsureCustomSabersOverridden();
+
+                if (_colorInit) return;
+
+
+                var colorManager = Resources.FindObjectsOfTypeAll<ColorManager>().FirstOrDefault();
+                if (colorManager == null) return;
+
+                var leftColor = ReflectionUtil.GetPrivateField<SimpleColorSO>(colorManager, "_colorA");
+                var rightColor = ReflectionUtil.GetPrivateField<SimpleColorSO>(colorManager, "_colorB");
+
+                leftColor.SetColor(ColorLeft);
+                rightColor.SetColor(ColorRight);
+
+                Log("ColorManager colors set!");
+
+
+                foreach (var scriptableColor in _scriptableColors)
                 {
-                    scriptableColor.SetColor(ColorLeft);
-                }
-                else if (scriptableColor.name == "Color Blue" || scriptableColor.name == "BaseColor0")
-                {
-                    scriptableColor.SetColor(ColorRight);
-                }
-                //Log($"Set scriptable color: {scriptableColor.name}");
-            }
-            Log("ScriptableColors modified!");
-
-
-            foreach (var prePassLight in _prePassLights)
-            {
-                if (prePassLight.name.Contains("-RightColor") || prePassLight.name.Contains("-LeftColor")) continue;
-
-                var oldCol = ReflectionUtil.GetPrivateField<Color>(prePassLight, "_color");
-                if (oldCol.r > 0.5)
-                {
-                    prePassLight.name += "-LeftColor";
-                    ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorLeft);
-                }
-                else
-                {
-                    prePassLight.name += "-RightColor";
-                    ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorRight);
-                }
-                //Log($"PrepassLight: {prePassLight.name}");
-            }
-            Log("PrePassLight colors set!");
-
-
-            foreach (var light in _environmentLights)
-            {
-                light.SetColor("_Color", new Color(ColorRight.r * 0.5f, ColorRight.g * 0.5f, ColorRight.b * 0.5f, 1.0f));
-            }
-            Log("Environment light colors set!");
-
-            if (SceneManager.GetActiveScene().name == "Menu")
-            {
-                var texts = UnityEngine.Object.FindObjectsOfType<TextMeshPro>();
-                foreach (var text in texts)
-                {
-                    if (text.name == "PP" || text.name == "SABER")
+                    /*
+                    if (scriptableColor.name == "Color Red" || scriptableColor.name == "BaseColor1")
                     {
-                        ReflectionUtil.SetPrivateField(text, "m_fontColor", ColorLeft);
+                        scriptableColor.SetColor(ColorLeft);
                     }
-                    else if (text.name == "B" || text.name == "E" || text.name == "AT")
+                    else if (scriptableColor.name == "Color Blue" || scriptableColor.name == "BaseColor0")
                     {
-                        ReflectionUtil.SetPrivateField(text, "m_fontColor", ColorRight);
+                        scriptableColor.SetColor(ColorRight);
                     }
-                    //Log($"text: {text.name}");
+                    */
+                    if (scriptableColor.name == "Color Red")
+                        scriptableColor.SetColor(ColorLeft);
+                    else if (scriptableColor.name == "BaseColor1")
+                        scriptableColor.SetColor(ColorLeftLight);
+                    else if (scriptableColor.name == "Color Blue")
+                        scriptableColor.SetColor(ColorRight);
+                    else if (scriptableColor.name == "BaseColor0")
+                        scriptableColor.SetColor(ColorRightLight);
+
+                    //         Log($"Set scriptable color: {scriptableColor.name}");
+                }
+                Log("ScriptableColors modified!");
+
+
+                foreach (var prePassLight in _prePassLights)
+                {
+                    if (prePassLight.name.Contains("-RightColor") || prePassLight.name.Contains("-LeftColor")) continue;
+
+                    var oldCol = ReflectionUtil.GetPrivateField<Color>(prePassLight, "_color");
+                    if (oldCol.r > 0.5)
+                    {
+                        prePassLight.name += "-LeftColor";
+                        ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorLeftLight);
+                    }
+                    else
+                    {
+                        prePassLight.name += "-RightColor";
+                        ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorRightLight);
+                    }
+                    //Log($"PrepassLight: {prePassLight.name}");
+                }
+                Log("PrePassLight colors set!");
+
+
+                foreach (var light in _environmentLights)
+                {
+                    light.SetColor("_Color", new Color(ColorRightLight.r * 0.5f, ColorRightLight.g * 0.5f, ColorRightLight.b * 0.5f, 1.0f));
+                }
+                Log("Environment light colors set!");
+
+                if (SceneManager.GetActiveScene().name == "Menu")
+                {
+                    var texts = UnityEngine.Object.FindObjectsOfType<TextMeshPro>();
+                    foreach (var text in texts)
+                    {
+                        if (text.name == "PP" || text.name == "SABER")
+                        {
+                            ReflectionUtil.SetPrivateField(text, "m_fontColor", ColorLeft);
+                        }
+                        else if (text.name == "B" || text.name == "E" || text.name == "AT")
+                        {
+                            ReflectionUtil.SetPrivateField(text, "m_fontColor", ColorRight);
+                        }
+                        //Log($"text: {text.name}");
+                    }
+
+                    var flickeringLetter = UnityEngine.Object.FindObjectOfType<FlickeringNeonSign>();
+                    if (flickeringLetter != null)
+                        ReflectionUtil.SetPrivateField(flickeringLetter, "_onColor", ColorRight);
+
+                    Log("Menu colors set!");
                 }
 
-                var flickeringLetter = UnityEngine.Object.FindObjectOfType<FlickeringNeonSign>();
-                if (flickeringLetter != null)
-                    ReflectionUtil.SetPrivateField(flickeringLetter, "_onColor", ColorRight);
 
-                Log("Menu colors set!");
+                _colorInit = true;
             }
-
-
-            _colorInit = true;
         }
 
         public static void Log(string message)
@@ -256,5 +324,6 @@ namespace CustomColors
         void IPlugin.OnLevelWasInitialized(int level) { }
 
         #endregion
+
     }
 }

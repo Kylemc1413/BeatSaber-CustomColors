@@ -28,7 +28,7 @@ namespace CustomColors
         public static bool ctInstalled = false;
         public const int Max = 3000;
         public const int Min = 0;
-
+        public static float brightness = 1f;
         string IPlugin.Name => Name;
         string IPlugin.Version => Version;
 
@@ -42,7 +42,7 @@ namespace CustomColors
 
         public void OnApplicationStart()
         {
-            ctInstalled = ColorsUI.checkCT();
+            ctInstalled = ColorsUI.CheckCT();
             if (_init) return;
             _init = true;
 
@@ -88,6 +88,7 @@ namespace CustomColors
                 leftLightPreset = ModPrefs.GetInt(Name, "leftLightPreset", 1, true);
                 rightLightPreset = ModPrefs.GetInt(Name, "rightLightPreset", 2, true);
 
+                brightness = ModPrefs.GetFloat(Name, "Brightness", 1, true);
                 //Make sure preset exists, else default to user
                 if (leftColorPreset > ColorsUI.ColorPresets.Count) leftColorPreset = 0;
                 if (rightColorPreset > ColorsUI.ColorPresets.Count) rightColorPreset = 0;
@@ -148,6 +149,8 @@ namespace CustomColors
                         break;
 
                 }
+                ColorLeftLight *= brightness;
+                ColorRightLight *= brightness;
             }
 
         }
@@ -193,12 +196,19 @@ namespace CustomColors
 
             foreach (var renderer in saberRenderers)
             {
-                foreach (var renderMaterial in renderer.sharedMaterials)
+                if (renderer != null)
                 {
-                    if (renderMaterial.HasProperty("_Glow") && renderMaterial.GetFloat("_Glow") > 0 ||
-                        renderMaterial.HasProperty("_Bloom") && renderMaterial.GetFloat("_Bloom") > 0)
+                    foreach (var renderMaterial in renderer.sharedMaterials)
                     {
-                        renderMaterial.SetColor("_Color", color);
+                        if (renderMaterial != null)
+                        {
+                            if (renderMaterial.HasProperty("_Glow") && renderMaterial.GetFloat("_Glow") > 0 ||
+                                renderMaterial.HasProperty("_Bloom") && renderMaterial.GetFloat("_Bloom") > 0)
+                            {
+                                renderMaterial.SetColor("_Color", color);
+                            }
+                        }
+
                     }
                 }
             }
@@ -230,25 +240,29 @@ namespace CustomColors
 
                 foreach (var scriptableColor in _scriptableColors)
                 {
-                    /*
-                    if (scriptableColor.name == "Color Red" || scriptableColor.name == "BaseColor1")
+                    if (scriptableColor != null)
                     {
-                        scriptableColor.SetColor(ColorLeft);
-                    }
-                    else if (scriptableColor.name == "Color Blue" || scriptableColor.name == "BaseColor0")
-                    {
-                        scriptableColor.SetColor(ColorRight);
-                    }
-                    */
-                    if (scriptableColor.name == "Color Red")
-                        scriptableColor.SetColor(ColorLeft);
-                    else if (scriptableColor.name == "BaseColor1")
-                        scriptableColor.SetColor(ColorLeftLight);
-                    else if (scriptableColor.name == "Color Blue")
-                        scriptableColor.SetColor(ColorRight);
-                    else if (scriptableColor.name == "BaseColor0")
-                        scriptableColor.SetColor(ColorRightLight);
 
+
+                        /*
+                        if (scriptableColor.name == "Color Red" || scriptableColor.name == "BaseColor1")
+                        {
+                            scriptableColor.SetColor(ColorLeft);
+                        }
+                        else if (scriptableColor.name == "Color Blue" || scriptableColor.name == "BaseColor0")
+                        {
+                            scriptableColor.SetColor(ColorRight);
+                        }
+                        */
+                        if (scriptableColor.name == "Color Red")
+                            scriptableColor.SetColor(ColorLeft);
+                        else if (scriptableColor.name == "BaseColor1")
+                            scriptableColor.SetColor(ColorLeftLight);
+                        else if (scriptableColor.name == "Color Blue")
+                            scriptableColor.SetColor(ColorRight);
+                        else if (scriptableColor.name == "BaseColor0")
+                            scriptableColor.SetColor(ColorRightLight);
+                    }
                     //         Log($"Set scriptable color: {scriptableColor.name}");
                 }
                 Log("ScriptableColors modified!");
@@ -256,19 +270,23 @@ namespace CustomColors
 
                 foreach (var prePassLight in _prePassLights)
                 {
-                    if (prePassLight.name.Contains("-RightColor") || prePassLight.name.Contains("-LeftColor")) continue;
+                    if (prePassLight != null)
+                    {
+                        if (prePassLight.name.Contains("-RightColor") || prePassLight.name.Contains("-LeftColor")) continue;
 
-                    var oldCol = ReflectionUtil.GetPrivateField<Color>(prePassLight, "_color");
-                    if (oldCol.r > 0.5)
-                    {
-                        prePassLight.name += "-LeftColor";
-                        ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorLeftLight);
+                        var oldCol = ReflectionUtil.GetPrivateField<Color>(prePassLight, "_color");
+                        if (oldCol.r > 0.5)
+                        {
+                            prePassLight.name += "-LeftColor";
+                            ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorLeftLight);
+                        }
+                        else
+                        {
+                            prePassLight.name += "-RightColor";
+                            ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorRightLight);
+                        }
                     }
-                    else
-                    {
-                        prePassLight.name += "-RightColor";
-                        ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorRightLight);
-                    }
+
                     //Log($"PrepassLight: {prePassLight.name}");
                 }
                 Log("PrePassLight colors set!");
@@ -276,6 +294,7 @@ namespace CustomColors
 
                 foreach (var light in _environmentLights)
                 {
+                    if(light != null)
                     light.SetColor("_Color", new Color(ColorRightLight.r * 0.5f, ColorRightLight.g * 0.5f, ColorRightLight.b * 0.5f, 1.0f));
                 }
                 Log("Environment light colors set!");
@@ -285,13 +304,16 @@ namespace CustomColors
                     var texts = UnityEngine.Object.FindObjectsOfType<TextMeshPro>();
                     foreach (var text in texts)
                     {
-                        if (text.name == "PP" || text.name == "SABER")
+                        if (text != null)
                         {
-                            ReflectionUtil.SetPrivateField(text, "m_fontColor", ColorLeft);
-                        }
-                        else if (text.name == "B" || text.name == "E" || text.name == "AT")
-                        {
-                            ReflectionUtil.SetPrivateField(text, "m_fontColor", ColorRight);
+                            if (text.name == "PP" || text.name == "SABER")
+                            {
+                                ReflectionUtil.SetPrivateField(text, "m_fontColor", ColorLeft);
+                            }
+                            else if (text.name == "B" || text.name == "E" || text.name == "AT")
+                            {
+                                ReflectionUtil.SetPrivateField(text, "m_fontColor", ColorRight);
+                            }
                         }
                         //Log($"text: {text.name}");
                     }

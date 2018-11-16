@@ -195,6 +195,11 @@ namespace CustomColors
             {
                 foreach (var renderMaterial in renderer.sharedMaterials)
                 {
+                    if (renderMaterial == null)
+                    {
+                        continue;
+                    }
+                    
                     if (renderMaterial.HasProperty("_Glow") && renderMaterial.GetFloat("_Glow") > 0 ||
                         renderMaterial.HasProperty("_Bloom") && renderMaterial.GetFloat("_Bloom") > 0)
                     {

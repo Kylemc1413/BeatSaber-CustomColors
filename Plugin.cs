@@ -198,21 +198,25 @@ namespace CustomColors
             {
                 if (renderer != null)
                 {
+
                     foreach (var renderMaterial in renderer.sharedMaterials)
                     {
-                        if (renderMaterial != null)
+                        if (renderMaterial == null)
                         {
-                            if (renderMaterial.HasProperty("_Glow") && renderMaterial.GetFloat("_Glow") > 0 ||
-                                renderMaterial.HasProperty("_Bloom") && renderMaterial.GetFloat("_Bloom") > 0)
-                            {
-                                renderMaterial.SetColor("_Color", color);
-                            }
+                            continue;
                         }
 
+                        if (renderMaterial.HasProperty("_Glow") && renderMaterial.GetFloat("_Glow") > 0 ||
+                            renderMaterial.HasProperty("_Bloom") && renderMaterial.GetFloat("_Bloom") > 0)
+
+                        {
+
+                            renderMaterial.SetColor("_Color", color);
+                        }
                     }
                 }
-            }
 
+            }
             return true;
         }
 

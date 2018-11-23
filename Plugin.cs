@@ -65,11 +65,12 @@ namespace CustomColors
         {
             if (ctInstalled == false)
             {
+                /*
                 if (scene.name == "Menu")
                 {
                     ColorsUI.CreateSettingsUI();
                 }
-
+                */
                 ReadPreferences();
                 GetObjects();
                 InvalidateColors();

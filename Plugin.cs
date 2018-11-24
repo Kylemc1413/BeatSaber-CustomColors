@@ -306,7 +306,7 @@ namespace CustomColors
                 foreach (var light in _environmentLights)
                 {
                     if(light != null)
-                    light.SetColor("_Color", new Color(ColorRightLight.r * 0.5f, ColorRightLight.g * 0.5f, ColorRightLight.b * 0.5f, 1.0f));
+                    light.SetColor("_Color", new Color(ColorRightLight.r, ColorRightLight.g, ColorRightLight.b, 1.0f));
                 }
                 Log("Environment light colors set!");
 

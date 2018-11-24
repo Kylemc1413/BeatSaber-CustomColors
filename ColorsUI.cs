@@ -21,7 +21,7 @@ namespace CustomColors
         {
             {new Color(), "User"},
             {new Color(1, 0, 0), "Default Red"},
-            {new Color(0, 0.5f, 1), "Default Blue"},
+            {new Color(0, .753f, 1), "Default Blue"},
             {new Color(0, .98f, 2.157f), "Electric Blue"},
             {new Color(0, 1, 0), "Green"},
             {new Color(1.05f, 0, 2.188f), "Purple"},

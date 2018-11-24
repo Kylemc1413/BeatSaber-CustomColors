@@ -125,12 +125,15 @@ namespace CustomColors
                         break;
                     case 1:
                         ColorLeftLight = ColorLeft;
+                        ColorLeftLight *= .7f;
                         break;
                     case 2:
                         ColorLeftLight = ColorRight;
+                        ColorLeftLight *= .7f;
                         break;
                     default:
                         ColorLeftLight = ColorsUI.OtherPresets[leftLightPreset].Item1;
+                        ColorLeftLight *= .7f;
                         break;
 
                 }
@@ -140,13 +143,16 @@ namespace CustomColors
                         ColorRightLight = new Color(0, 192 / 255f, 1);
                         break;
                     case 1:
-                        ColorRightLight = ColorRight;
+                        ColorRightLight = ColorLeft;
+                        ColorRightLight *= .7f;
                         break;
                     case 2:
                         ColorRightLight = ColorRight;
+                        ColorRightLight *= .7f;
                         break;
                     default:
                         ColorRightLight = ColorsUI.OtherPresets[rightLightPreset].Item1;
+                        ColorRightLight *= .7f;
                         break;
 
                 }

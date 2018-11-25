@@ -31,15 +31,14 @@ namespace CustomColors
         public static float brightness = 1f;
         string IPlugin.Name => Name;
         string IPlugin.Version => Version;
-
         bool _init;
-        bool _colorInit;
-        bool _customsInit;
+        bool _colorInit = false;
+        bool _customsInit = false;
 
         SimpleColorSO[] _scriptableColors;
         readonly List<Material> _environmentLights = new List<Material>();
         TubeBloomPrePassLight[] _prePassLights;
-
+        
         public void OnApplicationStart()
         {
             ctInstalled = ColorsUI.CheckCT();
@@ -49,9 +48,16 @@ namespace CustomColors
             _colorInit = false;
             if(ctInstalled == false)
             GameHooks.Initialize();
-
+            SceneManager.sceneLoaded += SceneManager_sceneLoaded;
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
 
+        }
+
+        private void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
+        {
+            ReadPreferences();
+            GetObjects();
+            InvalidateColors();
         }
 
         public void OnApplicationQuit()
@@ -59,6 +65,7 @@ namespace CustomColors
             GameHooks.Shutdown();
 
             SceneManager.activeSceneChanged -= SceneManagerOnActiveSceneChanged;
+            SceneManager.sceneLoaded -= SceneManager_sceneLoaded;
         }
 
         void SceneManagerOnActiveSceneChanged(Scene arg0, Scene scene)
@@ -68,7 +75,7 @@ namespace CustomColors
                 
                 if (scene.name == "Menu")
                 {
-               //     ColorsUI.CreateSettingsUI();
+                   ColorsUI.CreateSettingsUI();
                 }
                 
                 ReadPreferences();
@@ -253,7 +260,7 @@ namespace CustomColors
                 {
                     if (scriptableColor != null)
                     {
-
+                        Log(scriptableColor.name);
 
                         /*
                         if (scriptableColor.name == "Color Red" || scriptableColor.name == "BaseColor1")
@@ -265,22 +272,26 @@ namespace CustomColors
                             scriptableColor.SetColor(ColorRight);
                         }
                         */
-                        if (scriptableColor.name == "Color Red")
+                        if (scriptableColor.name == "Color0")
                             scriptableColor.SetColor(ColorLeft);
-                        else if (scriptableColor.name == "BaseColor1")
-                            scriptableColor.SetColor(ColorLeftLight);
-                        else if (scriptableColor.name == "Color Blue")
-                            scriptableColor.SetColor(ColorRight);
                         else if (scriptableColor.name == "BaseColor0")
+                            scriptableColor.SetColor(ColorLeftLight);
+                        else if (scriptableColor.name == "Color1")
+                            scriptableColor.SetColor(ColorRight);
+                        else if (scriptableColor.name == "BaseColor1")
+                            scriptableColor.SetColor(ColorRightLight);
+                        else if (scriptableColor.name == "MenuEnvLight0")
                             scriptableColor.SetColor(ColorRightLight);
                     }
                     //         Log($"Set scriptable color: {scriptableColor.name}");
                 }
                 Log("ScriptableColors modified!");
 
-
+                /*
                 foreach (var prePassLight in _prePassLights)
                 {
+                    Log(prePassLight.name);
+                    Log(prePassLight.ToString());
                     if (prePassLight != null)
                     {
                         if (prePassLight.name.Contains("-RightColor") || prePassLight.name.Contains("-LeftColor")) continue;
@@ -297,12 +308,13 @@ namespace CustomColors
                             ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorRightLight);
                         }
                     }
+                  
 
                     //Log($"PrepassLight: {prePassLight.name}");
                 }
                 Log("PrePassLight colors set!");
 
-
+    */
                 foreach (var light in _environmentLights)
                 {
                     if(light != null)

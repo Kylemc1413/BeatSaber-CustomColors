@@ -11,6 +11,8 @@ using VRUI;
 using VRUIControls;
 using TMPro;
 using IllusionPlugin;
+using HMUI;
+
 namespace CustomColors
 {
     public class ListViewController : ListSettingsController
@@ -275,10 +277,29 @@ namespace CustomColors
     public class SettingsUI : MonoBehaviour
     {
         public static SettingsUI Instance = null;
-        MainMenuViewController _mainMenuViewController = null;
-        SimpleDialogPromptViewController prompt = null;
+        static bool ready = false;
+        public static bool Ready
+        {
+            get => ready;
+        }
 
+        static MainMenuViewController _mainMenuViewController = null;
+        static SettingsNavigationController settingsMenu = null;
+        static MainSettingsMenuViewController mainSettingsMenu = null;
+        static MainSettingsTableView _mainSettingsTableView = null;
+        static TableView subMenuTableView = null;
         static MainSettingsTableCell tableCell = null;
+        static TableView subMenuTableViewHelper;
+
+        static Transform othersSubmenu = null;
+
+        static SimpleDialogPromptViewController prompt = null;
+
+        static Button _pageUpButton = null;
+        static Button _pageDownButton = null;
+        static Vector2 buttonOffset = new Vector2(24, 0);
+        static bool initialized = false;
+
 
         public static void OnLoad()
         {
@@ -293,7 +314,8 @@ namespace CustomColors
 
         public static bool isGameScene(Scene scene)
         {
-            return (scene.name == "StandardLevel");
+            //return scene.name.Contains("Environment");
+            return (scene.name == "StandardLevelLoader");
         }
 
         public void Awake()
@@ -312,12 +334,111 @@ namespace CustomColors
 
         public void SceneManagerOnActiveSceneChanged(Scene arg0, Scene scene)
         {
-            if (isMenuScene(scene))
+            try
             {
-                _mainMenuViewController = Resources.FindObjectsOfTypeAll<MainMenuViewController>().First();
-                var _menuMasterViewController = Resources.FindObjectsOfTypeAll<StandardLevelSelectionFlowCoordinator>().First();
-                prompt = ReflectionUtil.GetPrivateField<SimpleDialogPromptViewController>(_menuMasterViewController, "_simpleDialogPromptViewController");
+                if (isMenuScene(scene) && !initialized)
+                {
+                    SetupUI();
+                    initialized = true;
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("SettingsUI done fucked up: " + e);
+            }
+        }
+
+        private static void SetupUI()
+        {
+            if (mainSettingsMenu == null)
+            {
+                ready = false;
+            }
+
+            if (!Ready)
+            {
+                try
+                {
+                    var _menuMasterViewController = Resources.FindObjectsOfTypeAll<MainFlowCoordinator>().First();
+                    prompt = ReflectionUtil.GetPrivateField<SimpleDialogPromptViewController>(_menuMasterViewController, "_simpleDialogPromptViewController");
+
+                    _mainMenuViewController = Resources.FindObjectsOfTypeAll<MainMenuViewController>().First();
+                    settingsMenu = Resources.FindObjectsOfTypeAll<SettingsNavigationController>().FirstOrDefault();
+                    mainSettingsMenu = Resources.FindObjectsOfTypeAll<MainSettingsMenuViewController>().FirstOrDefault();
+                    _mainSettingsTableView = mainSettingsMenu.GetPrivateField<MainSettingsTableView>("_mainSettingsTableView");
+                    subMenuTableView = _mainSettingsTableView.GetComponentInChildren<TableView>();
+                    subMenuTableViewHelper = subMenuTableView.gameObject.AddComponent<TableView>();
+                    othersSubmenu = settingsMenu.transform.Find("OtherSettings");
+
+                    //var buttons = settingsMenu.transform.Find("Buttons");
+                    //RectTransform okButton = (RectTransform)buttons.Find("OkButton"); //{x: -17, y: 6}
+                    //RectTransform CancelButton = (RectTransform)buttons.Find("CancelButton"); // {x: 0, y: 6}
+                    //RectTransform ApplyButton = (RectTransform)buttons.Find("ApplyButton"); // {x: 17, y: 6}
+
+                    //okButton.anchoredPosition += buttonOffset;
+                    //CancelButton.anchoredPosition += buttonOffset;
+                    //ApplyButton.anchoredPosition += buttonOffset;
+
+                    if (_mainSettingsTableView != null)
+                    {
+                        AddPageButtons();
+                    }
+
+                    if (tableCell == null)
+                    {
+                        tableCell = Resources.FindObjectsOfTypeAll<MainSettingsTableCell>().FirstOrDefault();
+                        // Get a refence to the Settings Table cell text in case we want to change font size, etc
+                        var text = tableCell.GetPrivateField<TextMeshProUGUI>("_settingsSubMenuText");
+                    }
+
+                    ready = true;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Beat Saver UI: Oops - " + e.Message);
+                }
+            }
+        }
+
+        static void AddPageButtons()
+        {
+            RectTransform viewport = _mainSettingsTableView.GetComponentsInChildren<RectTransform>().First(x => x.name == "Viewport");
+            viewport.anchorMin = new Vector2(0f, 0.5f);
+            viewport.anchorMax = new Vector2(1f, 0.5f);
+            viewport.sizeDelta = new Vector2(0f, 48f);
+            viewport.anchoredPosition = new Vector2(0f, 0f);
+
+            if (_pageUpButton == null)
+            {
+                _pageUpButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageUpButton")), _mainSettingsTableView.transform, false);
+                (_pageUpButton.transform as RectTransform).anchorMin = new Vector2(0.5f, 0.5f);
+                (_pageUpButton.transform as RectTransform).anchorMax = new Vector2(0.5f, 0.5f);
+                (_pageUpButton.transform as RectTransform).anchoredPosition = new Vector2(0f, 24f);
+                _pageUpButton.interactable = true;
+                _pageUpButton.onClick.AddListener(delegate ()
+                {
+                    subMenuTableViewHelper.PageScrollUp();
+                });
+            }
+
+            if (_pageDownButton == null)
+            {
+                _pageDownButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().First(x => (x.name == "PageDownButton")), _mainSettingsTableView.transform, false);
+                (_pageDownButton.transform as RectTransform).anchorMin = new Vector2(0.5f, 0.5f);
+                (_pageDownButton.transform as RectTransform).anchorMax = new Vector2(0.5f, 0.5f);
+                (_pageDownButton.transform as RectTransform).anchoredPosition = new Vector2(0f, -24f);
+                _pageDownButton.interactable = true;
+                _pageDownButton.onClick.AddListener(delegate ()
+                {
+                    subMenuTableViewHelper.PageScrollDown();
+                });
+            }
+
+            subMenuTableViewHelper.SetPrivateField("_pageUpButton", _pageUpButton);
+            subMenuTableViewHelper.SetPrivateField("_pageDownButton", _pageDownButton);
+
+            //subMenuTableView.SetPrivateField("_pageUpButton", _pageUpButton);
+            //subMenuTableView.SetPrivateField("_pageDownButton", _pageDownButton);
         }
 
         public static void LogComponents(Transform t, string prefix = "=", bool includeScipts = false)
@@ -346,31 +467,23 @@ namespace CustomColors
                 return null;
             }
 
-            if (tableCell == null)
-            {
-                tableCell = Resources.FindObjectsOfTypeAll<MainSettingsTableCell>().FirstOrDefault();
-                // Get a refence to the Settings Table cell text in case we want to change fint size, etc
-                var text = tableCell.GetPrivateField<TextMeshProUGUI>("_settingsSubMenuText");
-            }
+            SetupUI();
 
-            var temp = Resources.FindObjectsOfTypeAll<SettingsNavigationController>().FirstOrDefault();
+            var subMenuGameObject = Instantiate(othersSubmenu.gameObject, othersSubmenu.transform.parent);
+            Transform mainContainer = CleanScreen(subMenuGameObject.transform);
 
-            var others = temp.transform.Find("Others");
-            var tweakSettingsObject = Instantiate(others.gameObject, others.transform.parent);
-            Transform mainContainer = CleanScreen(tweakSettingsObject.transform);
+            var newSubMenuInfo = new SettingsSubMenuInfo();
+            newSubMenuInfo.SetPrivateField("_menuName", name);
+            newSubMenuInfo.SetPrivateField("_viewController", subMenuGameObject.GetComponent<VRUIViewController>());
 
-            var tweaksSubMenu = new SettingsSubMenuInfo();
-            tweaksSubMenu.SetPrivateField("_menuName", name);
-            tweaksSubMenu.SetPrivateField("_controller", tweakSettingsObject.GetComponent<VRUIViewController>());
-
-            var mainSettingsMenu = Resources.FindObjectsOfTypeAll<MainSettingsMenuViewController>().FirstOrDefault();
-            var subMenus = mainSettingsMenu.GetPrivateField<SettingsSubMenuInfo[]>("_settingsSubMenuInfos").ToList();
-            subMenus.Add(tweaksSubMenu);
-            mainSettingsMenu.SetPrivateField("_settingsSubMenuInfos", subMenus.ToArray());
+            var subMenuInfos = mainSettingsMenu.GetPrivateField<SettingsSubMenuInfo[]>("_settingsSubMenuInfos").ToList();
+            subMenuInfos.Add(newSubMenuInfo);
+            mainSettingsMenu.SetPrivateField("_settingsSubMenuInfos", subMenuInfos.ToArray());
 
             SubMenu menu = new SubMenu(mainContainer);
             return menu;
         }
+
 
         static Transform CleanScreen(Transform screen)
         {

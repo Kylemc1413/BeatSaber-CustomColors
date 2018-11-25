@@ -44,7 +44,7 @@ namespace CustomColors
             {new Color(.3f ,.3f, .3f), "Black"},
             {new Color(0f ,0f, 0f), "Pure Black"},
         };
-        /*
+        
         public static void CreateSettingsUI()
         {
             var subMenuCC = SettingsUI.CreateSubMenu("Custom Colors");
@@ -146,7 +146,7 @@ namespace CustomColors
             };
             incrementValue.FormatValue += delegate (float value) { return ((int)value).ToString(); };
         }
-        */
+        
         public static bool CheckSaberTailor()
         {
             bool result = false;

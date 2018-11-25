@@ -315,8 +315,8 @@ namespace CustomColors
             if (isMenuScene(scene))
             {
                 _mainMenuViewController = Resources.FindObjectsOfTypeAll<MainMenuViewController>().First();
-         //       var _menuMasterViewController = Resources.FindObjectsOfTypeAll<StandardLevelSelectionFlowCoordinator>().First();
-           //     prompt = ReflectionUtil.GetPrivateField<SimpleDialogPromptViewController>(_menuMasterViewController, "_simpleDialogPromptViewController");
+                var _menuMasterViewController = Resources.FindObjectsOfTypeAll<StandardLevelSelectionFlowCoordinator>().First();
+                prompt = ReflectionUtil.GetPrivateField<SimpleDialogPromptViewController>(_menuMasterViewController, "_simpleDialogPromptViewController");
             }
         }
 

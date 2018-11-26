@@ -1,5 +1,5 @@
 #### Allows you to customize your colors in Beat Saber
-
+### Colors can be changed in game in the settings menu, specifically the color settings tab. All the different settings are described below
 ## READ HOW TO CHANGE YOUR COLORS BELOW, MAKE SURE TO READ THE *_ENTIRETY_* OF IT
 Can customize your colors in UserData/Modprefs.ini. Below is an example of what the custom colors section of it will look like, it is generated after running the game once.
 ```ini

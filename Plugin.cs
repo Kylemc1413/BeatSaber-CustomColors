@@ -350,7 +350,7 @@ namespace CustomColors
 
                         if (text != null)
                         {
-                            if (text.name == "PP" || text.name == "SABER")
+                            if (text.name == "SABER")
                             {
                                 ReflectionUtil.SetPrivateField(text, "m_fontColor", ColorLeft);
                             }

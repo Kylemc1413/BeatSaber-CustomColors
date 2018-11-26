@@ -13,7 +13,8 @@ using UnityEngine.UI;
 using VRUI;
 using System.Globalization;
 using IllusionInjector;
-using BeatSaberCustomUI;
+using CustomUI;
+using CustomUI.Settings;
 namespace CustomColors
 {
     class ColorsUI : MonoBehaviour

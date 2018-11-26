@@ -27,13 +27,13 @@ namespace CustomColors {
         {
             _stretchableCube_Awake.InvokeOriginal(t);
             Color col;
-            if (Plugin.customWallColor == 0) return;
-            if (Plugin.customWallColor == 1)
+            if (Plugin.wallColorPreset == 0) return;
+            if (Plugin.wallColorPreset == 1)
                 col = Plugin.ColorLeft;
-            else if (Plugin.customWallColor == 2)
+            else if (Plugin.wallColorPreset == 2)
                 col = Plugin.ColorRight;
             else
-                col = ColorsUI.OtherPresets[Plugin.customWallColor].Item1;
+                col = ColorsUI.OtherPresets[Plugin.wallColorPreset].Item1;
 
             foreach (Transform component in t.transform.parent.parent)
             {

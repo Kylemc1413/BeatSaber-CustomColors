@@ -13,6 +13,7 @@ using UnityEngine.UI;
 using VRUI;
 using System.Globalization;
 using IllusionInjector;
+using BeatSaberCustomUI;
 namespace CustomColors
 {
     class ColorsUI : MonoBehaviour
@@ -21,7 +22,7 @@ namespace CustomColors
         {
             {new Color(), "User"},
             {new Color(1, 0, 0), "Default Red"},
-            {new Color(0, .753f, 1), "Default Blue"},
+            {new Color(0, .706f, 1), "Default Blue"},
             {new Color(0, .98f, 2.157f), "Electric Blue"},
             {new Color(0, 1, 0), "Green"},
             {new Color(1.05f, 0, 2.188f), "Purple"},
@@ -89,8 +90,8 @@ namespace CustomColors
             for (int i = 0; i < OtherPresets.Count; i++) otherPresetValues[i] = i;
             // Wall Color Preset
             var customColoredWalls = subMenuPresets.AddList("Wall Color", otherPresetValues);
-            customColoredWalls.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "customWallColor", 0, true); };
-            customColoredWalls.SetValue += delegate (float value) { ModPrefs.SetInt(Plugin.Name, "customWallColor", (int)value); };
+            customColoredWalls.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "wallColorPreset", 0, true); };
+            customColoredWalls.SetValue += delegate (float value) { ModPrefs.SetInt(Plugin.Name, "wallColorPreset", (int)value); };
             customColoredWalls.FormatValue += delegate (float value) { return OtherPresets[(int)value].Item2; };
 
             //Left Light Preset

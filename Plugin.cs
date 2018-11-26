@@ -12,7 +12,7 @@ namespace CustomColors
     public class Plugin : IPlugin
     {
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.4.0";
+        public const string Version = "1.5.0";
 
         public static Color ColorLeft = new Color(1, 0, 0);
         public static Color ColorRight = new Color(0, 0, 1);
@@ -21,7 +21,7 @@ namespace CustomColors
         bool _overrideCustomSabers = true;
         public static int leftColorPreset = 0;
         public static int rightColorPreset = 0;
-        public static int customWallColor = 0;
+        public static int wallColorPreset = 0;
         public static int leftLightPreset = 0;
         public static int rightLightPreset = 0;
         public static int userIncrement;
@@ -34,6 +34,7 @@ namespace CustomColors
         bool _init;
         bool _colorInit = false;
         bool _customsInit = false;
+        bool firstCreate = false;
 
         SimpleColorSO[] _scriptableColors;
         readonly List<Material> _environmentLights = new List<Material>();
@@ -41,6 +42,7 @@ namespace CustomColors
         
         public void OnApplicationStart()
         {
+            ReadPreferences();
             ctInstalled = ColorsUI.CheckCT();
             if (_init) return;
             _init = true;
@@ -48,40 +50,38 @@ namespace CustomColors
             _colorInit = false;
             if(ctInstalled == false)
             GameHooks.Initialize();
-            SceneManager.sceneLoaded += SceneManager_sceneLoaded;
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
+            SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+            
 
         }
 
         private void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
         {
-            ReadPreferences();
-            GetObjects();
-            InvalidateColors();
+            if (ctInstalled == false)
+                if (arg0.name == "Menu")
+            {
+                ColorsUI.CreateSettingsUI();
+            }
         }
 
-        public void OnApplicationQuit()
+            public void OnApplicationQuit()
         {
             GameHooks.Shutdown();
 
             SceneManager.activeSceneChanged -= SceneManagerOnActiveSceneChanged;
-            SceneManager.sceneLoaded -= SceneManager_sceneLoaded;
         }
 
         void SceneManagerOnActiveSceneChanged(Scene arg0, Scene scene)
         {
             if (ctInstalled == false)
-            {
-                
-                if (scene.name == "Menu")
-                {
-                   ColorsUI.CreateSettingsUI();
-                }
-                
+            {            
                 ReadPreferences();
                 GetObjects();
                 InvalidateColors();
             }
+
+
 
         }
 
@@ -92,7 +92,7 @@ namespace CustomColors
                 userIncrement = ModPrefs.GetInt(Name, "userIncrement", 10, true);
                 leftColorPreset = ModPrefs.GetInt(Name, "leftColorPreset", 0, true);
                 rightColorPreset = ModPrefs.GetInt(Name, "rightColorPreset", 0, true);
-                customWallColor = ModPrefs.GetInt(Name, "customWallColor", 0, true);
+                wallColorPreset = ModPrefs.GetInt(Name, "wallColorPreset", 0, true);
                 leftLightPreset = ModPrefs.GetInt(Name, "leftLightPreset", 1, true);
                 rightLightPreset = ModPrefs.GetInt(Name, "rightLightPreset", 2, true);
 
@@ -102,7 +102,7 @@ namespace CustomColors
                 if (rightColorPreset > ColorsUI.ColorPresets.Count) rightColorPreset = 0;
                 if (leftLightPreset > ColorsUI.OtherPresets.Count) leftLightPreset = 0;
                 if (rightLightPreset > ColorsUI.OtherPresets.Count) rightLightPreset = 0;
-                if (customWallColor > ColorsUI.OtherPresets.Count) customWallColor = 0;
+                if (wallColorPreset > ColorsUI.OtherPresets.Count) wallColorPreset = 0;
 
                 //If preset is user get modprefs for colors, otherwise use preset
                 if (leftColorPreset == 0)
@@ -287,34 +287,47 @@ namespace CustomColors
                 }
                 Log("ScriptableColors modified!");
 
-                /*
+                SpriteRenderer[] sprites = Resources.FindObjectsOfTypeAll<SpriteRenderer>();
+                foreach(var sprite in sprites)
+                {
+                    if (sprite.name == "LogoSABER")
+                        sprite.color = ColorLeftLight;
+                    if (sprite.name == "LogoBAT" || sprite.name == "LogoE")
+                        sprite.color = ColorRightLight;
+
+
+                }
                 foreach (var prePassLight in _prePassLights)
                 {
-                    Log(prePassLight.name);
-                    Log(prePassLight.ToString());
+                    //Log(prePassLight.name);
+                    //Log(prePassLight.ToString());
                     if (prePassLight != null)
                     {
-                        if (prePassLight.name.Contains("-RightColor") || prePassLight.name.Contains("-LeftColor")) continue;
+
 
                         var oldCol = ReflectionUtil.GetPrivateField<Color>(prePassLight, "_color");
-                        if (oldCol.r > 0.5)
+                        if ((!prePassLight.name.Contains("-LeftColor") && oldCol.r > 0.5) || prePassLight.name.Contains("-LeftColor"))
                         {
-                            prePassLight.name += "-LeftColor";
+                            if (!prePassLight.name.Contains("-LeftColor")) prePassLight.name += "-LeftColor";
                             ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorLeftLight);
                         }
                         else
                         {
-                            prePassLight.name += "-RightColor";
+                            if (!prePassLight.name.Contains("-RightColor")) prePassLight.name += "-RightColor";
                             ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorRightLight);
                         }
+
+
                     }
-                  
+
 
                     //Log($"PrepassLight: {prePassLight.name}");
                 }
                 Log("PrePassLight colors set!");
+            
+        
 
-    */
+    
                 foreach (var light in _environmentLights)
                 {
                     if(light != null)
@@ -322,11 +335,19 @@ namespace CustomColors
                 }
                 Log("Environment light colors set!");
 
+       //Logo Disable if needed
+             /*
+            GameObject logo = GameObject.Find("Logo");
+            if(logo != null)
+            GameObject.Destroy(logo.gameObject);
+            */
+
                 if (SceneManager.GetActiveScene().name == "Menu")
                 {
                     var texts = UnityEngine.Object.FindObjectsOfType<TextMeshPro>();
                     foreach (var text in texts)
                     {
+
                         if (text != null)
                         {
                             if (text.name == "PP" || text.name == "SABER")

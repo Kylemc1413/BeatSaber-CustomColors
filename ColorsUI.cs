@@ -35,6 +35,8 @@ namespace CustomColors
         public static List<Tuple<Color, string>> OtherPresets = new List<Tuple<Color, string>>
         {
             {new Color(), "Default" },
+            {new Color(), "Left Color" },
+            {new Color(), "Right Color" },
             {new Color(), "User Left" },
             {new Color(), "User Right" },
             {new Color(0, .98f, 2.157f), "Electric Blue"},

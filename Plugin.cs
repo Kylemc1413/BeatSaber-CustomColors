@@ -12,7 +12,7 @@ namespace CustomColors
     public class Plugin : IPlugin
     {
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.5.0";
+        public const string Version = "1.6.0";
 
         public static Color ColorLeft = new Color(1, 0, 0);
         public static Color ColorRight = new Color(0, 0, 1);
@@ -134,24 +134,34 @@ namespace CustomColors
                         ColorLeftLight = new Color(1, 4 / 255f, 4 / 255f);
                         break;
                     case 1:
+                        ColorLeftLight = ColorLeft;
+                        if(leftColorPreset != 1 && leftColorPreset != 2)
+                            ColorLeftLight *= .8f;
+                        break;
+                    case 2:
+                        ColorLeftLight = ColorRight;
+                        if (rightColorPreset != 1 && rightColorPreset != 2)
+                            ColorLeftLight *= .8f;
+                        break;
+                    case 3:
                         ColorLeftLight = new Color(
                         ModPrefs.GetInt(Name, "LeftRed", 255, true) / 255f,
                         ModPrefs.GetInt(Name, "LeftGreen", 4, true) / 255f,
                         ModPrefs.GetInt(Name, "LeftBlue", 4, true) / 255f
                     );
-                        ColorLeftLight *= .7f;
+                        ColorLeftLight *= .8f;
                         break;
-                    case 2:
+                    case 4:
                         ColorLeftLight = new Color(
                         ModPrefs.GetInt(Name, "RightRed", 0, true) / 255f,
                         ModPrefs.GetInt(Name, "RightGreen", 192, true) / 255f,
                         ModPrefs.GetInt(Name, "RightBlue", 255, true) / 255f
-                    ); 
-                        ColorLeftLight *= .7f;
+                    );
+                        ColorLeftLight *= .8f;
                         break;
                     default:
                         ColorLeftLight = ColorsUI.OtherPresets[leftLightPreset].Item1;
-                        ColorLeftLight *= .7f;
+                        ColorLeftLight *= .8f;
                         break;
 
                 }
@@ -161,24 +171,34 @@ namespace CustomColors
                         ColorRightLight = new Color(0, 192 / 255f, 1);
                         break;
                     case 1:
+                        ColorRightLight = ColorLeft;
+                        if (leftColorPreset != 1 && leftColorPreset != 2)
+                            ColorRightLight *= .8f;
+                        break;
+                    case 2:
+                        ColorRightLight = ColorRight;
+                        if (rightColorPreset != 1 && rightColorPreset != 2)
+                            ColorRightLight *= .8f;
+                        break;
+                    case 3:
                         ColorRightLight = new Color(
                         ModPrefs.GetInt(Name, "LeftRed", 255, true) / 255f,
                         ModPrefs.GetInt(Name, "LeftGreen", 4, true) / 255f,
                         ModPrefs.GetInt(Name, "LeftBlue", 4, true) / 255f
                     );
-                        ColorRightLight *= .7f;
+                        ColorRightLight *= .8f;
                         break;
-                    case 2:
+                    case 4:
                         ColorRightLight = new Color(
                         ModPrefs.GetInt(Name, "RightRed", 0, true) / 255f,
                         ModPrefs.GetInt(Name, "RightGreen", 192, true) / 255f,
                         ModPrefs.GetInt(Name, "RightBlue", 255, true) / 255f
                     );
-                        ColorRightLight *= .7f;
+                        ColorRightLight *= .8f;
                         break;
                     default:
                         ColorRightLight = ColorsUI.OtherPresets[rightLightPreset].Item1;
-                        ColorRightLight *= .7f;
+                        ColorRightLight *= .8f;
                         break;
 
                 }
@@ -192,6 +212,7 @@ namespace CustomColors
         {
             if (ctInstalled == false)
             {
+
                 _scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
                 _prePassLights = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>();
 

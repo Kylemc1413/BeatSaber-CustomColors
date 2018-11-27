@@ -37,13 +37,16 @@ namespace CustomColors {
 
             foreach (Transform component in t.transform.parent.parent)
             {
+                if(component != null)
                 foreach (Transform child in component.transform)
                 {
+                        if(child != null)
                     child.GetComponent<MeshRenderer>().material.color = col;
                 }
             }
 
             MeshRenderer r = t.GetComponent<MeshRenderer>();
+            if (r != null) 
             r.material.SetColor("_AddColor", (col/4f).ColorWithAlpha(0f));
         }
     }

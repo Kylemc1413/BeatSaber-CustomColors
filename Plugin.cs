@@ -50,6 +50,8 @@ namespace CustomColors
             _colorInit = false;
             if(ctInstalled == false)
             GameHooks.Initialize();
+
+
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
             SceneManager.sceneLoaded += SceneManager_sceneLoaded;
             
@@ -79,6 +81,7 @@ namespace CustomColors
                 ReadPreferences();
                 GetObjects();
                 InvalidateColors();
+                ApplyColors();
             }
 
 
@@ -236,6 +239,11 @@ namespace CustomColors
 
         public void OnUpdate()
         {
+   
+        }
+
+        public void ApplyColors()
+        {
             if (ctInstalled == false)
             {
                 if (_colorInit && _overrideCustomSabers)
@@ -288,12 +296,16 @@ namespace CustomColors
                 Log("ScriptableColors modified!");
 
                 SpriteRenderer[] sprites = Resources.FindObjectsOfTypeAll<SpriteRenderer>();
-                foreach(var sprite in sprites)
+                foreach (var sprite in sprites)
                 {
-                    if (sprite.name == "LogoSABER")
-                        sprite.color = ColorLeftLight;
-                    if (sprite.name == "LogoBAT" || sprite.name == "LogoE")
-                        sprite.color = ColorRightLight;
+                    if (sprite != null)
+                    {
+                        if (sprite.name == "LogoSABER")
+                            sprite.color = ColorLeftLight;
+                        if (sprite.name == "LogoBAT" || sprite.name == "LogoE")
+                            sprite.color = ColorRightLight;
+                    }
+
 
 
                 }
@@ -324,23 +336,23 @@ namespace CustomColors
                     //Log($"PrepassLight: {prePassLight.name}");
                 }
                 Log("PrePassLight colors set!");
-            
-        
 
-    
+
+
+
                 foreach (var light in _environmentLights)
                 {
-                    if(light != null)
-                    light.SetColor("_Color", new Color(ColorRightLight.r, ColorRightLight.g, ColorRightLight.b, 1.0f));
+                    if (light != null)
+                        light.SetColor("_Color", new Color(ColorRightLight.r, ColorRightLight.g, ColorRightLight.b, 1.0f));
                 }
                 Log("Environment light colors set!");
 
-       //Logo Disable if needed
-             /*
-            GameObject logo = GameObject.Find("Logo");
-            if(logo != null)
-            GameObject.Destroy(logo.gameObject);
-            */
+                //Logo Disable if needed
+                /*
+               GameObject logo = GameObject.Find("Logo");
+               if(logo != null)
+               GameObject.Destroy(logo.gameObject);
+               */
 
                 if (SceneManager.GetActiveScene().name == "Menu")
                 {
@@ -373,7 +385,6 @@ namespace CustomColors
                 _colorInit = true;
             }
         }
-
         public static void Log(string message)
         {
             Console.WriteLine("[{0}] {1}", Name, message);

@@ -134,11 +134,19 @@ namespace CustomColors
                         ColorLeftLight = new Color(1, 4 / 255f, 4 / 255f);
                         break;
                     case 1:
-                        ColorLeftLight = ColorLeft;
+                        ColorLeftLight = new Color(
+                        ModPrefs.GetInt(Name, "LeftRed", 255, true) / 255f,
+                        ModPrefs.GetInt(Name, "LeftGreen", 4, true) / 255f,
+                        ModPrefs.GetInt(Name, "LeftBlue", 4, true) / 255f
+                    );
                         ColorLeftLight *= .7f;
                         break;
                     case 2:
-                        ColorLeftLight = ColorRight;
+                        ColorLeftLight = new Color(
+                        ModPrefs.GetInt(Name, "RightRed", 0, true) / 255f,
+                        ModPrefs.GetInt(Name, "RightGreen", 192, true) / 255f,
+                        ModPrefs.GetInt(Name, "RightBlue", 255, true) / 255f
+                    ); 
                         ColorLeftLight *= .7f;
                         break;
                     default:
@@ -153,11 +161,19 @@ namespace CustomColors
                         ColorRightLight = new Color(0, 192 / 255f, 1);
                         break;
                     case 1:
-                        ColorRightLight = ColorLeft;
+                        ColorRightLight = new Color(
+                        ModPrefs.GetInt(Name, "LeftRed", 255, true) / 255f,
+                        ModPrefs.GetInt(Name, "LeftGreen", 4, true) / 255f,
+                        ModPrefs.GetInt(Name, "LeftBlue", 4, true) / 255f
+                    );
                         ColorRightLight *= .7f;
                         break;
                     case 2:
-                        ColorRightLight = ColorRight;
+                        ColorRightLight = new Color(
+                        ModPrefs.GetInt(Name, "RightRed", 0, true) / 255f,
+                        ModPrefs.GetInt(Name, "RightGreen", 192, true) / 255f,
+                        ModPrefs.GetInt(Name, "RightBlue", 255, true) / 255f
+                    );
                         ColorRightLight *= .7f;
                         break;
                     default:

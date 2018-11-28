@@ -35,19 +35,18 @@ namespace CustomColors
         readonly List<Material> _environmentLights = new List<Material>();
         SimpleColorSO[] _scriptableColors;
         TubeBloomPrePassLight[] _prePassLights;
-        bool isMenu;
         public void OnApplicationStart()
         {
             ReadPreferences();
             ctInstalled = ColorsUI.CheckCT();
             _colorInit = false;
-            if(ctInstalled == false)
-            GameHooks.Initialize();
+            if (ctInstalled == false)
+                GameHooks.Initialize();
 
 
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
             SceneManager.sceneLoaded += SceneManager_sceneLoaded;
-            
+
 
         }
 
@@ -55,14 +54,14 @@ namespace CustomColors
         {
             if (ctInstalled == false)
                 if (arg0.name == "Menu")
-            {
-                ColorsUI.CreateSettingsUI();
+                {
+                    ColorsUI.CreateSettingsUI();
 
                 }
         }
 
 
-            public void OnApplicationQuit()
+        public void OnApplicationQuit()
         {
             GameHooks.Shutdown();
 
@@ -73,15 +72,20 @@ namespace CustomColors
         {
             if (ctInstalled == false)
             {
-
                 ReadPreferences();
                 GetObjects();
                 InvalidateColors();
+                //ApplyColors();
             }
 
 
         }
 
+        void SwapLightColors()
+        {
+            Color tmp = ColorLeftLight;
+
+        }
 
         void ReadPreferences()
         {
@@ -130,7 +134,7 @@ namespace CustomColors
                         break;
                     case 1:
                         ColorLeftLight = ColorLeft;
-                        if(leftColorPreset != 1 && leftColorPreset != 2)
+                        if (leftColorPreset != 1 && leftColorPreset != 2)
                             ColorLeftLight *= .8f;
                         break;
                     case 2:
@@ -230,7 +234,7 @@ namespace CustomColors
         {
             if (SceneManager.GetActiveScene().name != "GameCore") return;
             if (_customsInit) return;
-            if (!_overrideCustomSabers) return;
+
             _customsInit = OverrideSaber("LeftSaber", ColorLeft) && OverrideSaber("RightSaber", ColorRight);
         }
         bool OverrideSaber(string objectName, Color color)
@@ -293,30 +297,12 @@ namespace CustomColors
 
                 Log("ColorManager colors set!");
 
-
-              
-                SpriteRenderer[] sprites = Resources.FindObjectsOfTypeAll<SpriteRenderer>();
-                foreach (var sprite in sprites)
-                {
-                    if (sprite != null)
-                    {
-                        if (sprite.name == "LogoSABER")
-                            sprite.color = ColorLeftLight;
-                        if (sprite.name == "LogoBAT" || sprite.name == "LogoE")
-                            sprite.color = ColorRightLight;
-                    }
-
-
-
-                }
                 foreach (var prePassLight in _prePassLights)
                 {
-                    Log(prePassLight.name);
-                    Log(prePassLight.ToString());
+                    //Log(prePassLight.name);
+                    //Log(prePassLight.ToString());
                     if (prePassLight != null)
                     {
-
-
                         var oldCol = ReflectionUtil.GetPrivateField<Color>(prePassLight, "_color");
                         if ((!prePassLight.name.Contains("-RightColor") && !prePassLight.name.Contains("-LeftColor") && oldCol.r > 0.5) || prePassLight.name.Contains("-LeftColor"))
                         {
@@ -328,18 +314,11 @@ namespace CustomColors
                             if (!prePassLight.name.Contains("-RightColor")) prePassLight.name += "-RightColor";
                             ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorRightLight);
                         }
-
-               //         if (prePassLight.name.Contains("NeonLight (6)"))
-              //              ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorLeftLight);
-             //           if (prePassLight.name.Contains("NeonLight (8)"))
-             //               ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorLeftLight);
-
                     }
-
-
                     //Log($"PrepassLight: {prePassLight.name}");
                 }
                 Log("PrePassLight colors set!");
+
                 foreach (var scriptableColor in _scriptableColors)
                 {
                     if (scriptableColor != null)
@@ -374,7 +353,20 @@ namespace CustomColors
                 }
                 Log("ScriptableColors modified!");
 
+                SpriteRenderer[] sprites = Resources.FindObjectsOfTypeAll<SpriteRenderer>();
+                foreach (var sprite in sprites)
+                {
+                    if (sprite != null)
+                    {
+                        if (sprite.name == "LogoSABER")
+                            sprite.color = ColorLeftLight;
+                        if (sprite.name == "LogoBAT" || sprite.name == "LogoE")
+                            sprite.color = ColorRightLight;
+                    }
 
+
+
+                }
 
 
                 foreach (var light in _environmentLights)

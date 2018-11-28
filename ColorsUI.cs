@@ -13,6 +13,8 @@ using UnityEngine.UI;
 using VRUI;
 using System.Globalization;
 using IllusionInjector;
+using CustomUI;
+using CustomUI.Settings;
 namespace CustomColors
 {
     class ColorsUI : MonoBehaviour
@@ -21,7 +23,7 @@ namespace CustomColors
         {
             {new Color(), "User"},
             {new Color(1, 0, 0), "Default Red"},
-            {new Color(0, 0.5f, 1), "Default Blue"},
+            {new Color(0, .706f, 1), "Default Blue"},
             {new Color(0, .98f, 2.157f), "Electric Blue"},
             {new Color(0, 1, 0), "Green"},
             {new Color(1.05f, 0, 2.188f), "Purple"},
@@ -33,6 +35,8 @@ namespace CustomColors
         public static List<Tuple<Color, string>> OtherPresets = new List<Tuple<Color, string>>
         {
             {new Color(), "Default" },
+            {new Color(), "Left Color" },
+            {new Color(), "Right Color" },
             {new Color(), "User Left" },
             {new Color(), "User Right" },
             {new Color(0, .98f, 2.157f), "Electric Blue"},
@@ -42,8 +46,9 @@ namespace CustomColors
             {new Color(2.157f, 1.76f, 0), "Yellow" },
             {new Color(1, 1, 1), "White"},
             {new Color(.3f ,.3f, .3f), "Black"},
+            {new Color(0f ,0f, 0f), "Pure Black"},
         };
-
+        
         public static void CreateSettingsUI()
         {
             var subMenuCC = SettingsUI.CreateSubMenu("Custom Colors");
@@ -53,7 +58,7 @@ namespace CustomColors
             saberOverrideL.GetValue += delegate { return ModPrefs.GetBool(Plugin.Name, "OverrideCustomSabers", true, true); };
             saberOverrideL.SetValue += delegate (bool value) { ModPrefs.SetBool(Plugin.Name, "OverrideCustomSabers", value); };
 
-            bool saberTailorInstalled = checkSaberTailor();
+            bool saberTailorInstalled = CheckSaberTailor();
             if (saberTailorInstalled == true)
             {
                 //Trail adjustment if Saber Tailor is installed
@@ -61,7 +66,12 @@ namespace CustomColors
                 SaberTrails.GetValue += delegate { return ModPrefs.GetInt("SaberTailor", "TrailLength", 20, true); };
                 SaberTrails.SetValue += delegate (int value) { ModPrefs.SetInt("SaberTailor", "TrailLength", (int)value); };
             }
-
+            //Light brightness
+            float[] brightnessValues = new float[11] { 0, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1f };
+            var Brightness = subMenuCC.AddList("Light Brightness", brightnessValues);
+            Brightness.GetValue += delegate { return ModPrefs.GetFloat(Plugin.Name, "Brightness", 1, true); };
+            Brightness.SetValue += delegate (float value) { ModPrefs.SetFloat(Plugin.Name, "Brightness", value); };
+             Brightness.FormatValue += delegate (float value) { return value.ToString(); };
 
             var subMenuPresets = SettingsUI.CreateSubMenu("Color Settings");
             float[] presetValues = new float[ColorPresets.Count];
@@ -83,8 +93,8 @@ namespace CustomColors
             for (int i = 0; i < OtherPresets.Count; i++) otherPresetValues[i] = i;
             // Wall Color Preset
             var customColoredWalls = subMenuPresets.AddList("Wall Color", otherPresetValues);
-            customColoredWalls.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "customWallColor", 0, true); };
-            customColoredWalls.SetValue += delegate (float value) { ModPrefs.SetInt(Plugin.Name, "customWallColor", (int)value); };
+            customColoredWalls.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "wallColorPreset", 0, true); };
+            customColoredWalls.SetValue += delegate (float value) { ModPrefs.SetInt(Plugin.Name, "wallColorPreset", (int)value); };
             customColoredWalls.FormatValue += delegate (float value) { return OtherPresets[(int)value].Item2; };
 
             //Left Light Preset
@@ -97,16 +107,6 @@ namespace CustomColors
             rightLightPreset.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "rightLightPreset", 0, true); };
             rightLightPreset.SetValue += delegate (float value) { ModPrefs.SetInt(Plugin.Name, "rightLightPreset", (int)value); };
             rightLightPreset.FormatValue += delegate (float value) { return OtherPresets[(int)value].Item2; };
-
-
-
-            /*
-            var customColoredWalls = subMenuCC.AddList("Custom Wall Color", new float[] { 0, 1, 2 });
-            var wallNames = new string[] { "Off", "Left Color", "Right Color" };
-            customColoredWalls.GetValue += delegate { return ModPrefs.GetInt(Plugin.Name, "customWallColor", 1, true); };
-            customColoredWalls.SetValue += delegate (float value) { ModPrefs.SetInt(Plugin.Name, "customWallColor", (int)value); };
-            customColoredWalls.FormatValue += delegate (float value) { return wallNames[(int)value]; };
-            */
 
             var subMenuUser = SettingsUI.CreateSubMenu("User Colors");
 
@@ -150,8 +150,8 @@ namespace CustomColors
             };
             incrementValue.FormatValue += delegate (float value) { return ((int)value).ToString(); };
         }
-
-        public static bool checkSaberTailor()
+        
+        public static bool CheckSaberTailor()
         {
             bool result = false;
             foreach (IPlugin plugin in PluginManager.Plugins)
@@ -161,7 +161,7 @@ namespace CustomColors
             }
             return result;
         }
-        public static bool checkCT()
+        public static bool CheckCT()
         {
             bool result = false;
             foreach (IPlugin plugin in PluginManager.Plugins)

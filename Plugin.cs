@@ -31,22 +31,15 @@ namespace CustomColors
         public static float brightness = 1f;
         string IPlugin.Name => Name;
         string IPlugin.Version => Version;
-        bool _init;
         bool _colorInit = false;
         bool _customsInit = false;
-        bool firstCreate = false;
-
-        SimpleColorSO[] _scriptableColors;
         readonly List<Material> _environmentLights = new List<Material>();
+        SimpleColorSO[] _scriptableColors;
         TubeBloomPrePassLight[] _prePassLights;
-        
         public void OnApplicationStart()
         {
             ReadPreferences();
             ctInstalled = ColorsUI.CheckCT();
-            if (_init) return;
-            _init = true;
-
             _colorInit = false;
             if(ctInstalled == false)
             GameHooks.Initialize();
@@ -83,7 +76,6 @@ namespace CustomColors
                 InvalidateColors();
                 ApplyColors();
             }
-
 
 
         }
@@ -212,10 +204,8 @@ namespace CustomColors
         {
             if (ctInstalled == false)
             {
-
                 _scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
                 _prePassLights = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>();
-
                 var renderers = UnityEngine.Object.FindObjectsOfType<Renderer>();
                 _environmentLights.Clear();
                 _environmentLights.AddRange(
@@ -305,8 +295,8 @@ namespace CustomColors
                 {
                     if (scriptableColor != null)
                     {
-                        Log(scriptableColor.name);
-
+                  //      Log(scriptableColor.name);
+                 //       Log(scriptableColor.color.ToString());
                         /*
                         if (scriptableColor.name == "Color Red" || scriptableColor.name == "BaseColor1")
                         {
@@ -320,13 +310,16 @@ namespace CustomColors
                         if (scriptableColor.name == "Color0")
                             scriptableColor.SetColor(ColorLeft);
                         else if (scriptableColor.name == "BaseColor0")
-                            scriptableColor.SetColor(ColorLeftLight);
+                            scriptableColor.SetColor(ColorRightLight);
                         else if (scriptableColor.name == "Color1")
                             scriptableColor.SetColor(ColorRight);
                         else if (scriptableColor.name == "BaseColor1")
-                            scriptableColor.SetColor(ColorRightLight);
+                            scriptableColor.SetColor(ColorLeftLight);
                         else if (scriptableColor.name == "MenuEnvLight0")
                             scriptableColor.SetColor(ColorRightLight);
+
+                  //      Log(scriptableColor.name);
+                  //      Log(scriptableColor.color.ToString());
                     }
                     //         Log($"Set scriptable color: {scriptableColor.name}");
                 }
@@ -393,27 +386,10 @@ namespace CustomColors
 
                 if (SceneManager.GetActiveScene().name == "Menu")
                 {
-                    var texts = UnityEngine.Object.FindObjectsOfType<TextMeshPro>();
-                    foreach (var text in texts)
-                    {
-
-                        if (text != null)
-                        {
-                            if (text.name == "SABER")
-                            {
-                                ReflectionUtil.SetPrivateField(text, "m_fontColor", ColorLeft);
-                            }
-                            else if (text.name == "B" || text.name == "E" || text.name == "AT")
-                            {
-                                ReflectionUtil.SetPrivateField(text, "m_fontColor", ColorRight);
-                            }
-                        }
-                        //Log($"text: {text.name}");
-                    }
 
                     var flickeringLetter = UnityEngine.Object.FindObjectOfType<FlickeringNeonSign>();
                     if (flickeringLetter != null)
-                        ReflectionUtil.SetPrivateField(flickeringLetter, "_onColor", ColorRight);
+                        ReflectionUtil.SetPrivateField(flickeringLetter, "_onColor", ColorRightLight);
 
                     Log("Menu colors set!");
                 }

@@ -27,6 +27,8 @@ namespace CustomColors {
         {
             _stretchableCube_Awake.InvokeOriginal(t);
             Color col;
+            if(!Plugin.rainbowWall)
+            {
             if (Plugin.wallColorPreset == 0) return;
             if (Plugin.wallColorPreset == 1)
                 col = Plugin.ColorLeft;
@@ -34,6 +36,12 @@ namespace CustomColors {
                 col = Plugin.ColorRight;
             else
                 col = ColorsUI.OtherPresets[Plugin.wallColorPreset].Item1;
+            }
+            else
+            {
+                col = new Color(UnityEngine.Random.Range(0f, 2f), UnityEngine.Random.Range(0f, 2f), UnityEngine.Random.Range(0f, 2f));
+            }
+
 
             foreach (Transform component in t.transform.parent.parent)
             {

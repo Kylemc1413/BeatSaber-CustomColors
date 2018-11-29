@@ -28,6 +28,7 @@ namespace CustomColors
         public const int Max = 3000;
         public const int Min = 0;
         public static float brightness = 1f;
+        public static bool rainbowWall = false;
         string IPlugin.Name => Name;
         string IPlugin.Version => Version;
         bool _colorInit = false;
@@ -99,6 +100,7 @@ namespace CustomColors
                 rightLightPreset = ModPrefs.GetInt(Name, "rightLightPreset", 2, true);
 
                 brightness = ModPrefs.GetFloat(Name, "Brightness", 1, true);
+                rainbowWall = ModPrefs.GetBool(Name, "rainbowWalls", false, true);
                 //Make sure preset exists, else default to user
                 if (leftColorPreset > ColorsUI.ColorPresets.Count) leftColorPreset = 0;
                 if (rightColorPreset > ColorsUI.ColorPresets.Count) rightColorPreset = 0;

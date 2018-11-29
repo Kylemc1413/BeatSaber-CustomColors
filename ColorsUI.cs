@@ -108,6 +108,12 @@ namespace CustomColors
             rightLightPreset.SetValue += delegate (float value) { ModPrefs.SetInt(Plugin.Name, "rightLightPreset", (int)value); };
             rightLightPreset.FormatValue += delegate (float value) { return OtherPresets[(int)value].Item2; };
 
+            //Rainbow Walls
+            var rainbowWallOverride = subMenuPresets.AddBool("Rainbow Wall Override");
+            rainbowWallOverride.GetValue += delegate { return ModPrefs.GetBool(Plugin.Name, "rainbowWalls", false, true); };
+            rainbowWallOverride.SetValue += delegate (bool value) { ModPrefs.SetBool(Plugin.Name, "rainbowWalls", value); };
+
+
             var subMenuUser = SettingsUI.CreateSubMenu("User Colors");
 
             //Left Red

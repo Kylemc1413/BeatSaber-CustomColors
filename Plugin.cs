@@ -11,7 +11,7 @@ namespace CustomColors
     public class Plugin : IPlugin
     {
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.6.2";
+        public const string Version = "1.6.4";
 
         public static Color ColorLeft = new Color(1, 0, 0);
         public static Color ColorRight = new Color(0, 0, 1);
@@ -323,8 +323,8 @@ namespace CustomColors
                 {
                     if (scriptableColor != null)
                     {
-                        Log(scriptableColor.name);
-                        Log(scriptableColor.color.ToString());
+                   //     Log(scriptableColor.name);
+                   //     Log(scriptableColor.color.ToString());
                         /*
                         if (scriptableColor.name == "Color Red" || scriptableColor.name == "BaseColor1")
                         {
@@ -346,8 +346,8 @@ namespace CustomColors
                         else if (scriptableColor.name == "MenuEnvLight0")
                             scriptableColor.SetColor(ColorRightLight);
 
-                        Log(scriptableColor.name);
-                        Log(scriptableColor.color.ToString());
+                  //      Log(scriptableColor.name);
+                  //      Log(scriptableColor.color.ToString());
                     }
                     //         Log($"Set scriptable color: {scriptableColor.name}");
                 }

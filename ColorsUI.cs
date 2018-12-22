@@ -54,6 +54,27 @@ namespace CustomColors
             var subMenuCC = SettingsUI.CreateSubMenu("Custom Colors");
 
             //Saber Override Setting for Left menu
+            var disableOption = subMenuCC.AddBool("Disable the Plugin");
+            disableOption.GetValue += delegate { return ModPrefs.GetBool(Plugin.Name, "disablePlugin", false, true); };
+            disableOption.SetValue += delegate (bool value) 
+            {
+                if(value == true)
+                {
+                ModPrefs.SetBool(Plugin.Name, "disablePlugin", value);
+                    Plugin.disablePlugin = value;
+                   Plugin.queuedDisable = true;
+                }
+                if (value == false)
+                {
+                    ModPrefs.SetBool(Plugin.Name, "disablePlugin", value);
+                    Plugin.disablePlugin = value;
+                    Plugin.queuedDisable = false;
+                }
+
+
+            };
+
+
             var saberOverrideL = subMenuCC.AddBool("Override Custom Saber Color");
             saberOverrideL.GetValue += delegate { return ModPrefs.GetBool(Plugin.Name, "OverrideCustomSabers", true, true); };
             saberOverrideL.SetValue += delegate (bool value) { ModPrefs.SetBool(Plugin.Name, "OverrideCustomSabers", value); };
@@ -167,19 +188,19 @@ namespace CustomColors
             }
             return result;
         }
-        public static bool CheckCT()
+        public static void CheckCT()
         {
-            bool result = false;
             foreach (IPlugin plugin in PluginManager.Plugins)
             {
                 if (plugin.ToString() == "ChromaToggle.Plugin")
                 {
                     Plugin.Log("ChromaToggle Detected, Disabling Custom Colors");
-                    result = true;
+                    Plugin.disablePlugin = true;
+                    Plugin.ctInstalled = true;
                 }
 
             }
-            return result;
+           
         }
     }
 }

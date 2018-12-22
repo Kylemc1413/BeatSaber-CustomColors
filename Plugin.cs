@@ -24,6 +24,8 @@ namespace CustomColors
         public static int leftLightPreset = 0;
         public static int rightLightPreset = 0;
         public static int userIncrement;
+        public static bool disablePlugin = false;
+        public static bool queuedDisable = false;
         public static bool ctInstalled = false;
         public const int Max = 3000;
         public const int Min = 0;
@@ -39,7 +41,7 @@ namespace CustomColors
         public void OnApplicationStart()
         {
             ReadPreferences();
-            ctInstalled = ColorsUI.CheckCT();
+            ColorsUI.CheckCT();
             _colorInit = false;
             if (ctInstalled == false)
                 GameHooks.Initialize();
@@ -71,7 +73,8 @@ namespace CustomColors
 
         void SceneManagerOnActiveSceneChanged(Scene arg0, Scene scene)
         {
-            if (ctInstalled == false)
+            ReadPreferences();
+            if (disablePlugin == false || queuedDisable == true)
             {
                 ReadPreferences();
                 GetObjects();
@@ -90,7 +93,31 @@ namespace CustomColors
 
         void ReadPreferences()
         {
-            if (ctInstalled == false)
+            if(disablePlugin == false)
+            {
+                disablePlugin = ModPrefs.GetBool(Name, "disablePlugin", false, true);
+                if (disablePlugin) queuedDisable = true;
+
+            }
+
+            if(queuedDisable)
+            {
+                ColorLeft = new Color(
+                                       ModPrefs.GetInt(Name, "LeftRed", 255, true) / 255f,
+                                       ModPrefs.GetInt(Name, "LeftGreen", 4, true) / 255f,
+                                       ModPrefs.GetInt(Name, "LeftBlue", 4, true) / 255f
+                                   );
+                ColorRight = new Color(
+                      ModPrefs.GetInt(Name, "RightRed", 0, true) / 255f,
+                      ModPrefs.GetInt(Name, "RightGreen", 192, true) / 255f,
+                      ModPrefs.GetInt(Name, "RightBlue", 255, true) / 255f
+                  );
+                ColorLeftLight = new Color(1, 4 / 255f, 4 / 255f);
+                ColorRightLight = new Color(0, 192 / 255f, 1);
+                wallColorPreset = 0;
+            }
+
+            if (disablePlugin == false)
             {
                 userIncrement = ModPrefs.GetInt(Name, "userIncrement", 10, true);
                 leftColorPreset = ModPrefs.GetInt(Name, "leftColorPreset", 0, true);
@@ -211,7 +238,7 @@ namespace CustomColors
 
         void GetObjects()
         {
-            if (ctInstalled == false)
+            if (disablePlugin == false || queuedDisable)
             {
                 _scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
                 _prePassLights = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>();
@@ -289,7 +316,7 @@ namespace CustomColors
 
         public void ApplyColors()
         {
-            if (ctInstalled == false)
+            if (disablePlugin == false || queuedDisable)
             {
                 if (_colorInit && _overrideCustomSabers)
                     EnsureCustomSabersOverridden();
@@ -419,6 +446,7 @@ namespace CustomColors
 
 
                 _colorInit = true;
+                queuedDisable = false;
             }
         }
         public static void Log(string message)

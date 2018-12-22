@@ -11,7 +11,7 @@ namespace CustomColors
     public class Plugin : IPlugin
     {
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.7.0";
+        public const string Version = "1.7.1";
 
         public static Color ColorLeft = new Color(1, 0, 0);
         public static Color ColorRight = new Color(0, 0, 1);
@@ -74,15 +74,35 @@ namespace CustomColors
         void SceneManagerOnActiveSceneChanged(Scene arg0, Scene scene)
         {
             ReadPreferences();
-            if (disablePlugin == false || queuedDisable == true)
+            GetObjects();
+            InvalidateColors();
+
+            if (disablePlugin)
             {
-                ReadPreferences();
-                GetObjects();
-                InvalidateColors();
-                //ApplyColors();
+                var colorManager = Resources.FindObjectsOfTypeAll<ColorManager>().FirstOrDefault();
+                if (colorManager == null) return;
+
+                var leftColor = ReflectionUtil.GetPrivateField<SimpleColorSO>(colorManager, "_colorA");
+                var rightColor = ReflectionUtil.GetPrivateField<SimpleColorSO>(colorManager, "_colorB");
+
+                foreach (var scriptableColor in _scriptableColors)
+                {
+                    if (scriptableColor != null)
+                    {
+                  //      Log(scriptableColor.name + " " + scriptableColor.color.ToString());
+                        if (scriptableColor.name == "Color0")
+                                scriptableColor.SetColor(new Color(1, 0, 0));
+
+                        if (scriptableColor.name == "Color1")
+                                scriptableColor.SetColor(new Color(0, .706f, 1));
+
+                    //    Log("TWO " + scriptableColor.name + " " + scriptableColor.color.ToString());
+
+                    }
+
+                }
             }
-
-
+               
         }
 
         void SwapLightColors()
@@ -93,14 +113,14 @@ namespace CustomColors
 
         void ReadPreferences()
         {
-            if(disablePlugin == false)
+            if (disablePlugin == false)
             {
                 disablePlugin = ModPrefs.GetBool(Name, "disablePlugin", false, true);
                 if (disablePlugin) queuedDisable = true;
 
             }
 
-            if(queuedDisable)
+            if (queuedDisable)
             {
                 ColorLeft = new Color(
                                        ModPrefs.GetInt(Name, "LeftRed", 255, true) / 255f,
@@ -238,19 +258,17 @@ namespace CustomColors
 
         void GetObjects()
         {
-            if (disablePlugin == false || queuedDisable)
-            {
-                _scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
-                _prePassLights = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>();
-                var renderers = UnityEngine.Object.FindObjectsOfType<Renderer>();
-                _environmentLights.Clear();
-                _environmentLights.AddRange(
-                    renderers
-                        .Where(renderer => renderer.materials.Length > 0)
-                        .Select(renderer => renderer.material)
-                        .Where(material => material.shader.name == "Custom/ParametricBox" || material.shader.name == "Custom/ParametricBoxOpaque")
-                );
-            }
+
+            _scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
+            _prePassLights = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>();
+            var renderers = UnityEngine.Object.FindObjectsOfType<Renderer>();
+            _environmentLights.Clear();
+            _environmentLights.AddRange(
+                renderers
+                    .Where(renderer => renderer.materials.Length > 0)
+                    .Select(renderer => renderer.material)
+                    .Where(material => material.shader.name == "Custom/ParametricBox" || material.shader.name == "Custom/ParametricBoxOpaque")
+            );
         }
 
         void InvalidateColors()
@@ -263,7 +281,7 @@ namespace CustomColors
         {
             if (SceneManager.GetActiveScene().name != "GameCore") return;
             if (_customsInit) return;
-
+            if (disablePlugin) return;
             _customsInit = OverrideSaber("LeftSaber", ColorLeft) && OverrideSaber("RightSaber", ColorRight);
         }
 
@@ -337,31 +355,31 @@ namespace CustomColors
 
                 foreach (var prePassLight in _prePassLights)
                 {
-                    
+
                     if (prePassLight != null)
                     {
-              //          Log(prePassLight.name);
-              //          Log(prePassLight.ToString());
+                        //          Log(prePassLight.name);
+                        //          Log(prePassLight.ToString());
                         //      if (prePassLight.name.Contains("-RightColor"))
                         ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorRightLight);
 
-                //        if (prePassLight.name.Contains("ENeon") || prePassLight.name.Contains("BATNeon") || prePassLight.name.Contains("6") || prePassLight.name.Contains("8"))
-                //            ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorLeftLight);
+                        //        if (prePassLight.name.Contains("ENeon") || prePassLight.name.Contains("BATNeon") || prePassLight.name.Contains("6") || prePassLight.name.Contains("8"))
+                        //            ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorLeftLight);
                         //       else if (prePassLight.name.Contains("-LeftColor"))
                         //           ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorLeftLight);
                         // //       else
                         {
-                //        var oldCol = ReflectionUtil.GetPrivateField<Color>(prePassLight, "_color");
-                //        if ((!prePassLight.name.Contains("-RightColor") && !prePassLight.name.Contains("-LeftColor") && oldCol.r > 0.5) || prePassLight.name.Contains("-LeftColor"))
-                //        {
-                 //           if (!prePassLight.name.Contains("-LeftColor")) prePassLight.name += "-LeftColor";
-                 //           ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorLeftLight);
-                 //       }
-                 //       else
-                 //       {
-                 //           if (!prePassLight.name.Contains("-RightColor")) prePassLight.name += "-RightColor";
-                 //           ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorRightLight);
-                 //       }
+                            //        var oldCol = ReflectionUtil.GetPrivateField<Color>(prePassLight, "_color");
+                            //        if ((!prePassLight.name.Contains("-RightColor") && !prePassLight.name.Contains("-LeftColor") && oldCol.r > 0.5) || prePassLight.name.Contains("-LeftColor"))
+                            //        {
+                            //           if (!prePassLight.name.Contains("-LeftColor")) prePassLight.name += "-LeftColor";
+                            //           ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorLeftLight);
+                            //       }
+                            //       else
+                            //       {
+                            //           if (!prePassLight.name.Contains("-RightColor")) prePassLight.name += "-RightColor";
+                            //           ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorRightLight);
+                            //       }
                         }
 
 
@@ -374,8 +392,8 @@ namespace CustomColors
                 {
                     if (scriptableColor != null)
                     {
-                   //     Log(scriptableColor.name);
-                   //     Log(scriptableColor.color.ToString());
+                        //     Log(scriptableColor.name);
+                        //     Log(scriptableColor.color.ToString());
                         /*
                         if (scriptableColor.name == "Color Red" || scriptableColor.name == "BaseColor1")
                         {
@@ -397,8 +415,8 @@ namespace CustomColors
                         else if (scriptableColor.name == "MenuEnvLight0")
                             scriptableColor.SetColor(ColorRightLight);
 
-                  //      Log(scriptableColor.name);
-                  //      Log(scriptableColor.color.ToString());
+                        //      Log(scriptableColor.name);
+                        //      Log(scriptableColor.color.ToString());
                     }
                     //         Log($"Set scriptable color: {scriptableColor.name}");
                 }
@@ -448,6 +466,7 @@ namespace CustomColors
                 _colorInit = true;
                 queuedDisable = false;
             }
+        
         }
         public static void Log(string message)
         {

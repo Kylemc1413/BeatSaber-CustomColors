@@ -11,7 +11,7 @@ namespace CustomColors
     public class Plugin : IPlugin
     {
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.7.1";
+        public const string Version = "1.8.0";
 
         public static Color ColorLeft = new Color(1, 0, 0);
         public static Color ColorRight = new Color(0, 0, 1);
@@ -26,6 +26,7 @@ namespace CustomColors
         public static int userIncrement;
         public static bool disablePlugin = false;
         public static bool queuedDisable = false;
+        public static bool allowEnvironmentColors = true;
         public static bool ctInstalled = false;
         public const int Max = 3000;
         public const int Min = 0;
@@ -113,6 +114,7 @@ namespace CustomColors
 
         void ReadPreferences()
         {
+            allowEnvironmentColors = ModPrefs.GetBool(Plugin.Name, "allowEnvironmentColors", true, true);
             if (disablePlugin == false)
             {
                 disablePlugin = ModPrefs.GetBool(Name, "disablePlugin", false, true);
@@ -465,6 +467,9 @@ namespace CustomColors
 
                 _colorInit = true;
                 queuedDisable = false;
+                EnvironmentColorsSetter colorsSetter = Resources.FindObjectsOfTypeAll<EnvironmentColorsSetter>().FirstOrDefault();
+                if (allowEnvironmentColors)
+                    if (colorsSetter != null) colorsSetter.Awake();
             }
         
         }

@@ -73,7 +73,9 @@ namespace CustomColors
 
 
             };
-
+            var environmentColorsOption = subMenuCC.AddBool("Allow Color Overrides");
+            environmentColorsOption.GetValue += delegate { return ModPrefs.GetBool(Plugin.Name, "allowEnvironmentColors", true, true); };
+            environmentColorsOption.SetValue += delegate (bool value) { ModPrefs.SetBool(Plugin.Name, "allowEnvironmentColors", value); };
 
             var saberOverrideL = subMenuCC.AddBool("Override Custom Saber Color");
             saberOverrideL.GetValue += delegate { return ModPrefs.GetBool(Plugin.Name, "OverrideCustomSabers", true, true); };

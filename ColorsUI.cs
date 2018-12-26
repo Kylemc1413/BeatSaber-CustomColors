@@ -33,6 +33,7 @@ namespace CustomColors
             {new Color(.3f ,.3f, .3f), "Black"},
             {new Color(1.000f, 0.396f, 0.243f), "OST Orange"},
             {new Color(0.761f, 0.125f, 0.867f), "OST Purple"},
+            {new Color(0.349f, 0.69f, 0.957f), "Klouder Blue"},
         };
         public static List<Tuple<Color, string>> OtherPresets = new List<Tuple<Color, string>>
         {
@@ -51,6 +52,7 @@ namespace CustomColors
             {new Color(0f ,0f, 0f), "Pure Black"},
             {new Color(1.000f, 0.396f, 0.243f), "OST Orange"},
             {new Color(0.761f, 0.125f, 0.867f), "OST Purple"},
+            {new Color(0.349f, 0.69f, 0.957f), "Klouder Blue"},
         };
         
         public static void CreateSettingsUI()

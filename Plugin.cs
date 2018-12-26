@@ -469,7 +469,14 @@ namespace CustomColors
                 queuedDisable = false;
                 EnvironmentColorsSetter colorsSetter = Resources.FindObjectsOfTypeAll<EnvironmentColorsSetter>().FirstOrDefault();
                 if (allowEnvironmentColors)
+                {
                     if (colorsSetter != null) colorsSetter.Awake();
+                }
+
+                else
+                    {
+                        colorManager.RefreshColors();
+                    }
             }
         
         }

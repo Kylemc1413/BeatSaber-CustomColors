@@ -11,7 +11,7 @@ namespace CustomColors
     public class Plugin : IPlugin
     {
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.8.3";
+        public const string Version = "1.8.4";
 
         public static Color ColorLeft = new Color(1, 0, 0);
         public static Color ColorRight = new Color(0, 0, 1);
@@ -36,6 +36,9 @@ namespace CustomColors
         string IPlugin.Version => Version;
         bool _colorInit = false;
         bool _customsInit = false;
+        bool overrideSaberOverride = false;
+        bool safeSaberOverride = false;
+        static EnvironmentColorsSetter colorsSetter = null;
         readonly List<Material> _environmentLights = new List<Material>();
         SimpleColorSO[] _scriptableColors;
         TubeBloomPrePassLight[] _prePassLights;
@@ -277,6 +280,9 @@ namespace CustomColors
         {
             _colorInit = false;
             _customsInit = false;
+            safeSaberOverride = false;
+            colorsSetter = null;
+            overrideSaberOverride = false;
         }
 
         void EnsureCustomSabersOverridden()
@@ -284,7 +290,12 @@ namespace CustomColors
             if (SceneManager.GetActiveScene().name != "GameCore") return;
             if (_customsInit) return;
             if (disablePlugin) return;
+            if(!overrideSaberOverride)
             _customsInit = OverrideSaber("LeftSaber", ColorLeft) && OverrideSaber("RightSaber", ColorRight);
+            else
+            {
+                _customsInit = OverrideSaber("LeftSaber", colorsSetter.GetPrivateField<Color>("_overrideColorB")) && OverrideSaber("RightSaber", colorsSetter.GetPrivateField<Color>("_overrideColorA"));
+            }
         }
 
         public static void ForceOverrideCustomSabers()
@@ -338,7 +349,7 @@ namespace CustomColors
         {
             if (disablePlugin == false || queuedDisable)
             {
-                if (_colorInit && _overrideCustomSabers)
+                if (_colorInit && _overrideCustomSabers && safeSaberOverride)
                     EnsureCustomSabersOverridden();
 
                 if (_colorInit) return;
@@ -452,16 +463,20 @@ namespace CustomColors
 
                 _colorInit = true;
                 queuedDisable = false;
-                EnvironmentColorsSetter colorsSetter = Resources.FindObjectsOfTypeAll<EnvironmentColorsSetter>().FirstOrDefault();
+                colorsSetter = Resources.FindObjectsOfTypeAll<EnvironmentColorsSetter>().FirstOrDefault();
                 if (allowEnvironmentColors)
                 {
-                    if (colorsSetter != null) colorsSetter.Awake();
+                    if (colorsSetter != null)
+                    {
+                        colorsSetter.Awake();
+                        overrideSaberOverride = true;
+                    }
                 }
                 else
                 {
                     colorManager.RefreshColors();
                 }
-
+                safeSaberOverride = true;
             }
 
         }

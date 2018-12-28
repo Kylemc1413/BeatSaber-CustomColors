@@ -11,7 +11,7 @@ namespace CustomColors
     public class Plugin : IPlugin
     {
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.8.2";
+        public const string Version = "1.8.3";
 
         public static Color ColorLeft = new Color(1, 0, 0);
         public static Color ColorRight = new Color(0, 0, 1);
@@ -355,22 +355,6 @@ namespace CustomColors
 
                 Log("ColorManager colors set!");
 
-                foreach (var prePassLight in _prePassLights)
-                {
-
-                    if (prePassLight != null)
-                    {
-                        if (prePassLight.name.Contains("ENeon") || prePassLight.name.Contains("NeonLight (6)"))
-                            ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorLeftLight);
-
-                        if (prePassLight.name.Contains("BATNeon") || prePassLight.name.Contains("NeonLight (8)"))
-                            ReflectionUtil.SetPrivateField(prePassLight, "_color", ColorRightLight);
-
-                        //   Log($"PrepassLight: {prePassLight.name}");
-                    }
-                }
-                Log("PrePassLight colors set!");
-
                 foreach (var scriptableColor in _scriptableColors)
                 {
                     if (scriptableColor != null)
@@ -405,7 +389,35 @@ namespace CustomColors
                 }
                 Log("ScriptableColors modified!");
                 colorManager.RefreshColors();
+                
+                foreach (var prePassLight in _prePassLights)
+                {
 
+                    if (prePassLight != null)
+                    {
+                        if (prePassLight.name.Contains("NeonLight (6)"))
+                        {
+                            prePassLight.color = ColorLeftLight;
+                          
+                        }
+                        if (prePassLight.name.Contains("NeonLight (8)"))
+                        {
+                            Log(prePassLight.gameObject.transform.position.ToString());
+                            if(prePassLight.gameObject.transform.position.ToString() == "(0.0, 17.2, 24.8)")
+                            {
+                                Log(prePassLight.gameObject.transform.position.ToString());
+                                prePassLight.color = ColorLeftLight;
+                            }
+
+                        }
+                        if (prePassLight.name.Contains("BATNeon")  || prePassLight.name.Contains("ENeon"))
+                            prePassLight.color = ColorRightLight;
+
+                       //    Log($"PrepassLight: {prePassLight.name}");
+                    }
+                }
+                
+                Log("PrePassLight colors set!");
                 SpriteRenderer[] sprites = Resources.FindObjectsOfTypeAll<SpriteRenderer>();
                 foreach (var sprite in sprites)
                 {
@@ -418,8 +430,8 @@ namespace CustomColors
                     }
 
                 }
-
-
+                
+                
                 //Logo Disable if needed
                 /*
                GameObject logo = GameObject.Find("Logo");

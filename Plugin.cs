@@ -11,7 +11,7 @@ namespace CustomColors
     public class Plugin : IPlugin
     {
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.8.4";
+        public const string Version = "1.8.";
 
         public static Color ColorLeft = new Color(1, 0, 0);
         public static Color ColorRight = new Color(0, 0, 1);
@@ -32,16 +32,18 @@ namespace CustomColors
         public const int Min = 0;
         public static float brightness = 1f;
         public static bool rainbowWall = false;
+        public static int previewChangeAttempts = 5;
         string IPlugin.Name => Name;
         string IPlugin.Version => Version;
         bool _colorInit = false;
-        bool _customsInit = false;
+        static bool _customsInit = false;
         bool overrideSaberOverride = false;
         bool safeSaberOverride = false;
         static EnvironmentColorsSetter colorsSetter = null;
         readonly List<Material> _environmentLights = new List<Material>();
         SimpleColorSO[] _scriptableColors;
         TubeBloomPrePassLight[] _prePassLights;
+        private static bool CustomSabersPresent;
         public void OnApplicationStart()
         {
             ReadPreferences();
@@ -50,7 +52,7 @@ namespace CustomColors
             if (ctInstalled == false)
                 GameHooks.Initialize();
 
-
+            CustomSabersPresent = IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "Saber Mod");
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
             SceneManager.sceneLoaded += SceneManager_sceneLoaded;
 
@@ -77,9 +79,13 @@ namespace CustomColors
 
         void SceneManagerOnActiveSceneChanged(Scene arg0, Scene scene)
         {
+
             ReadPreferences();
             GetObjects();
             InvalidateColors();
+
+            if (CustomSabersPresent && scene.name == "Menu")
+                _customsInit = true;
 
             if (disablePlugin)
             {
@@ -117,6 +123,7 @@ namespace CustomColors
 
         void ReadPreferences()
         {
+            _overrideCustomSabers = ModPrefs.GetBool(Name, "OverrideCustomSabers", true, true);
             allowEnvironmentColors = ModPrefs.GetBool(Plugin.Name, "allowEnvironmentColors", true, true);
             if (disablePlugin == false)
             {
@@ -179,7 +186,6 @@ namespace CustomColors
                 else
                     ColorRight = ColorsUI.ColorPresets[rightColorPreset].Item1;
 
-                _overrideCustomSabers = ModPrefs.GetBool(Name, "OverrideCustomSabers", true, true);
                 //Set Light colors
                 switch (leftLightPreset)
                 {
@@ -287,30 +293,60 @@ namespace CustomColors
 
         void EnsureCustomSabersOverridden()
         {
-            if (SceneManager.GetActiveScene().name != "GameCore") return;
+            if (!CustomSabersPresent)
+            {
+                if (SceneManager.GetActiveScene().name != "GameCore") return;
+            }
+            else
+              if (SceneManager.GetActiveScene().name != "Menu" && SceneManager.GetActiveScene().name != "GameCore") return;
             if (_customsInit) return;
-            if (disablePlugin) return;
-            if(!overrideSaberOverride)
-            _customsInit = OverrideSaber("LeftSaber", ColorLeft) && OverrideSaber("RightSaber", ColorRight);
+            if (disablePlugin && !allowEnvironmentColors) return;
+
+            if (!overrideSaberOverride)
+            {
+                if (disablePlugin) return;
+      //          Log("Attempting Override of Custom Sabers");
+                _customsInit = OverrideSaber("LeftSaber", ColorLeft) && OverrideSaber("RightSaber", ColorRight);
+            }
             else
             {
+    //            Log("Attempting Override of Custom Sabers");
                 _customsInit = OverrideSaber("LeftSaber", colorsSetter.GetPrivateField<Color>("_overrideColorB")) && OverrideSaber("RightSaber", colorsSetter.GetPrivateField<Color>("_overrideColorA"));
             }
+            
         }
 
-        public static void ForceOverrideCustomSabers()
+        public static void ForceOverrideCustomSabers(bool loading)
         {
+       //     Log("Force Override Called");
             if (!_overrideCustomSabers) return;
-            OverrideSaber("LeftSaber", ColorLeft);
-            OverrideSaber("RightSaber", ColorRight);
+            if (loading)
+            {
+                _customsInit = false;
+                previewChangeAttempts = 4;
+            }
+
+            else
+                _customsInit = true;
 
         }
 
         public static bool OverrideSaber(string objectName, Color color)
         {
-            var saberObject = GameObject.Find(objectName);
-            if (saberObject == null) return false;
+     //       Log("Attempting Override of  Saber");
+            Transform saberObject = null;
+            if (previewChangeAttempts <= 0 && SceneManager.GetActiveScene().name == "Menu") return true;
+            bool alreadyChanged = true;
+            if (SceneManager.GetActiveScene().name == "Menu" && CustomSabersPresent)
+            {
+       //         Log("Finding Preview");
+                saberObject = GameObject.Find("Saber Preview").transform.Find(objectName);
+            }
 
+            else
+                saberObject = GameObject.Find(objectName).transform;
+            if (saberObject == null) return false;
+    //        Log(previewChangeAttempts.ToString());
             var saberRenderers = saberObject.GetComponentsInChildren<Renderer>();
             if (saberRenderers == null) return false;
 
@@ -318,7 +354,6 @@ namespace CustomColors
             {
                 if (renderer != null)
                 {
-
                     foreach (var renderMaterial in renderer.sharedMaterials)
                     {
                         if (renderMaterial == null)
@@ -328,16 +363,26 @@ namespace CustomColors
 
                         if (renderMaterial.HasProperty("_Glow") && renderMaterial.GetFloat("_Glow") > 0 ||
                             renderMaterial.HasProperty("_Bloom") && renderMaterial.GetFloat("_Bloom") > 0)
-
                         {
+                            if (renderMaterial.GetColor("_Color") != color)
+                            {
+                                alreadyChanged = false;
 
+                            }
                             renderMaterial.SetColor("_Color", color);
                         }
                     }
                 }
 
             }
-            return true;
+            if (!alreadyChanged)
+                return true;
+            else
+            {
+                previewChangeAttempts -= 1;
+                return false;
+            }
+
         }
 
         public void OnUpdate()
@@ -347,11 +392,14 @@ namespace CustomColors
 
         public void ApplyColors()
         {
+            if (_colorInit && _overrideCustomSabers && safeSaberOverride)
+                EnsureCustomSabersOverridden();
+            if (SceneManager.GetActiveScene().name == "Menu" && CustomSabersPresent && _overrideCustomSabers)
+                EnsureCustomSabersOverridden();
+
             if (disablePlugin == false || queuedDisable)
             {
-                if (_colorInit && _overrideCustomSabers && safeSaberOverride)
-                    EnsureCustomSabersOverridden();
-
+               
                 if (_colorInit) return;
 
 
@@ -400,7 +448,7 @@ namespace CustomColors
                 }
                 Log("ScriptableColors modified!");
                 colorManager.RefreshColors();
-                
+
                 foreach (var prePassLight in _prePassLights)
                 {
 
@@ -409,25 +457,23 @@ namespace CustomColors
                         if (prePassLight.name.Contains("NeonLight (6)"))
                         {
                             prePassLight.color = ColorLeftLight;
-                          
+
                         }
                         if (prePassLight.name.Contains("NeonLight (8)"))
                         {
-                            Log(prePassLight.gameObject.transform.position.ToString());
-                            if(prePassLight.gameObject.transform.position.ToString() == "(0.0, 17.2, 24.8)")
+                            if (prePassLight.gameObject.transform.position.ToString() == "(0.0, 17.2, 24.8)")
                             {
-                                Log(prePassLight.gameObject.transform.position.ToString());
                                 prePassLight.color = ColorLeftLight;
                             }
 
                         }
-                        if (prePassLight.name.Contains("BATNeon")  || prePassLight.name.Contains("ENeon"))
+                        if (prePassLight.name.Contains("BATNeon") || prePassLight.name.Contains("ENeon"))
                             prePassLight.color = ColorRightLight;
 
-                       //    Log($"PrepassLight: {prePassLight.name}");
+                        //    Log($"PrepassLight: {prePassLight.name}");
                     }
                 }
-                
+
                 Log("PrePassLight colors set!");
                 SpriteRenderer[] sprites = Resources.FindObjectsOfTypeAll<SpriteRenderer>();
                 foreach (var sprite in sprites)
@@ -441,8 +487,8 @@ namespace CustomColors
                     }
 
                 }
-                
-                
+
+
                 //Logo Disable if needed
                 /*
                GameObject logo = GameObject.Find("Logo");
@@ -477,6 +523,16 @@ namespace CustomColors
                     colorManager.RefreshColors();
                 }
                 safeSaberOverride = true;
+            }
+            if(disablePlugin && allowEnvironmentColors && _overrideCustomSabers)
+            {
+                colorsSetter = Resources.FindObjectsOfTypeAll<EnvironmentColorsSetter>().FirstOrDefault();
+                if (colorsSetter != null)
+                {
+                    overrideSaberOverride = true;
+                    _colorInit = true;
+                }
+                    safeSaberOverride = true;
             }
 
         }

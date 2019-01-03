@@ -9,7 +9,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Linq;
 using Object = UnityEngine.Object;
-
+using IllusionPlugin;
 
 namespace CustomColors {
     class GameHooks {
@@ -34,12 +34,22 @@ namespace CustomColors {
                 col = Plugin.ColorLeft;
             else if (Plugin.wallColorPreset == 2)
                 col = Plugin.ColorRight;
-            else
-                col = ColorsUI.OtherPresets[Plugin.wallColorPreset].Item1;
+                else if (Plugin.wallColorPreset == 3)
+                    col = new Color(
+                    ModPrefs.GetInt(Plugin.Name, "LeftRed", 255, true) / 255f,
+                    ModPrefs.GetInt(Plugin.Name, "LeftGreen", 4, true) / 255f,
+                    ModPrefs.GetInt(Plugin.Name, "LeftBlue", 4, true) / 255f);
+                else if (Plugin.wallColorPreset == 4)
+                    col = new Color(
+                    ModPrefs.GetInt(Plugin.Name, "RightRed", 255, true) / 255f,
+                    ModPrefs.GetInt(Plugin.Name, "RightGreen", 4, true) / 255f,
+                    ModPrefs.GetInt(Plugin.Name, "RightBlue", 4, true) / 255f);
+                else
+                    col = ColorsUI.OtherPresets[Plugin.wallColorPreset].Item1;
             }
             else
             {
-                col = new Color(UnityEngine.Random.Range(0f, 2f), UnityEngine.Random.Range(0f, 2f), UnityEngine.Random.Range(0f, 2f));
+                col = new Color(UnityEngine.Random.Range(0f, 1.5f), UnityEngine.Random.Range(0f, 1.5f), UnityEngine.Random.Range(0f, 1.5f));
             }
 
 

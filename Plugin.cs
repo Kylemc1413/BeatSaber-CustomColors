@@ -11,12 +11,14 @@ namespace CustomColors
     public class Plugin : IPlugin
     {
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.9.2";
+        public const string Version = "1.10.0";
 
         public static Color ColorLeft = new Color(1, 0, 0);
         public static Color ColorRight = new Color(0, 0, 1);
         public static Color ColorLeftLight = new Color(1, 0, 0);
         public static Color ColorRightLight = new Color(0, 0, 1);
+        public static Color CurrentWallColor;
+        public static Color wallColor;
         public static bool _overrideCustomSabers = true;
         public static int leftColorPreset = 0;
         public static int rightColorPreset = 0;
@@ -33,9 +35,10 @@ namespace CustomColors
         public static float brightness = 1f;
         public static bool rainbowWall = false;
         public static int previewChangeAttempts = 5;
+        public static float lerpControl = 0;
         string IPlugin.Name => Name;
         string IPlugin.Version => Version;
-        bool _colorInit = false;
+        static bool _colorInit = false;
         static bool _customsInit = false;
         bool overrideSaberOverride = false;
         bool safeSaberOverride = false;
@@ -44,6 +47,11 @@ namespace CustomColors
         SimpleColorSO[] _scriptableColors;
         TubeBloomPrePassLight[] _prePassLights;
         private static bool CustomSabersPresent;
+
+        public static IEnumerable<Material> coreObstacleMaterials;
+        public static IEnumerable<Material> frameObstacleMaterials;
+
+
         public void OnApplicationStart()
         {
             ReadPreferences();
@@ -301,20 +309,20 @@ namespace CustomColors
             if (!overrideSaberOverride)
             {
                 if (disablePlugin) return;
-      //          Log("Attempting Override of Custom Sabers");
+                //          Log("Attempting Override of Custom Sabers");
                 _customsInit = OverrideSaber("LeftSaber", ColorLeft) && OverrideSaber("RightSaber", ColorRight);
             }
             else
             {
-    //            Log("Attempting Override of Custom Sabers");
+                //            Log("Attempting Override of Custom Sabers");
                 _customsInit = OverrideSaber("LeftSaber", colorsSetter.GetPrivateField<Color>("_overrideColorB")) && OverrideSaber("RightSaber", colorsSetter.GetPrivateField<Color>("_overrideColorA"));
             }
-            
+
         }
 
         public static void ForceOverrideCustomSabers(bool loading)
         {
-       //     Log("Force Override Called");
+            //     Log("Force Override Called");
             if (!_overrideCustomSabers) return;
             if (loading)
             {
@@ -329,20 +337,20 @@ namespace CustomColors
 
         public static bool OverrideSaber(string objectName, Color color)
         {
-     //       Log("Attempting Override of  Saber");
+            //       Log("Attempting Override of  Saber");
             Transform saberObject = null;
             if (previewChangeAttempts <= 0 && SceneManager.GetActiveScene().name == "Menu") return true;
             bool alreadyChanged = true;
             if (SceneManager.GetActiveScene().name == "Menu" && CustomSabersPresent)
             {
-       //         Log("Finding Preview");
+                //         Log("Finding Preview");
                 saberObject = GameObject.Find("Saber Preview").transform.Find(objectName);
             }
 
             else
                 saberObject = GameObject.Find(objectName)?.transform;
             if (saberObject == null) return false;
-    //        Log(previewChangeAttempts.ToString());
+            //        Log(previewChangeAttempts.ToString());
             var saberRenderers = saberObject.GetComponentsInChildren<Renderer>();
             if (saberRenderers == null) return false;
 
@@ -384,9 +392,11 @@ namespace CustomColors
         public void OnUpdate()
         {
             ApplyColors();
+            if (rainbowWall)
+                SetWallColors();
         }
 
-        private Color GetWallColor()
+        private static Color GetWallColor()
         {
             Color col;
             if (!Plugin.rainbowWall)
@@ -410,7 +420,9 @@ namespace CustomColors
             }
             else
             {
-                col = new Color(UnityEngine.Random.Range(0f, 1.5f), UnityEngine.Random.Range(0f, 1.5f), UnityEngine.Random.Range(0f, 1.5f));
+                col = Rainbow.GetRandomColor();
+                if (!_colorInit)
+                    CurrentWallColor = Rainbow.GetRandomColor();
             }
             return col;
         }
@@ -516,21 +528,13 @@ namespace CustomColors
                     }
 
                 }
-                
+
                 if (Plugin.wallColorPreset != 0)
                 {
-                    var wallColor = GetWallColor();
-                    var coreObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleCore" || m.name == "ObstacleCoreInside");
-                    foreach (Material m in coreObstacleMaterials)
-                    {
-                        m.color = wallColor;
-                        m.SetColor("_AddColor", (wallColor / 4f).ColorWithAlpha(0f));
-                    }
-                    var frameObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleFrame");
-                    foreach (Material m in frameObstacleMaterials)
-                    {
-                        m.color = wallColor;
-                    }
+
+                    coreObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleCore" || m.name == "ObstacleCoreInside");
+                    frameObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleFrame");
+                    SetWallColors();
                 }
 
                 //Logo Disable if needed
@@ -568,7 +572,7 @@ namespace CustomColors
                 }
                 safeSaberOverride = true;
             }
-            if(disablePlugin && allowEnvironmentColors && _overrideCustomSabers)
+            if (disablePlugin && allowEnvironmentColors && _overrideCustomSabers)
             {
                 colorsSetter = Resources.FindObjectsOfTypeAll<EnvironmentColorsSetter>().FirstOrDefault();
                 if (colorsSetter != null)
@@ -576,11 +580,58 @@ namespace CustomColors
                     overrideSaberOverride = true;
                     _colorInit = true;
                 }
-                    safeSaberOverride = true;
+                safeSaberOverride = true;
             }
 
         }
 
+        public static void SetWallColors()
+        {
+            if (rainbowWall)
+            {
+                if (CurrentWallColor == wallColor)
+                {
+                    wallColor = GetWallColor();
+                    lerpControl = 0;
+                }
+
+                CurrentWallColor = Color.Lerp(CurrentWallColor, wallColor, lerpControl);
+                if (lerpControl < 1)
+                    lerpControl += Time.deltaTime / 4f;
+                if (coreObstacleMaterials != null && frameObstacleMaterials != null)
+                {
+                    foreach (Material m in coreObstacleMaterials)
+                    {
+                        m.color = CurrentWallColor;
+                        m.SetColor("_AddColor", (CurrentWallColor / 4f).ColorWithAlpha(0f));
+                    }
+                    foreach (Material m in frameObstacleMaterials)
+                    {
+                        m.color = CurrentWallColor;
+                    }
+                }
+
+            }
+            else
+            {
+                wallColor = GetWallColor();
+                if (coreObstacleMaterials != null && frameObstacleMaterials != null)
+                {
+                    foreach (Material m in coreObstacleMaterials)
+                    {
+                        m.color = wallColor;
+                        m.SetColor("_AddColor", (wallColor / 4f).ColorWithAlpha(0f));
+                    }
+                    foreach (Material m in frameObstacleMaterials)
+                    {
+                        m.color = wallColor;
+                    }
+                }
+            }
+
+
+
+        }
         public static void Log(string message)
         {
             Console.WriteLine("[{0}] {1}", Name, message);

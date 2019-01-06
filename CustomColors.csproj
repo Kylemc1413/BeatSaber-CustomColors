@@ -36,6 +36,7 @@
     <Compile Include="ColorsUI.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rainbow.cs" />
     <Compile Include="ReflectionUtil.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -49,8 +49,6 @@ namespace CustomColors
             ReadPreferences();
             ColorsUI.CheckCT();
             _colorInit = false;
-            if (ctInstalled == false)
-                GameHooks.Initialize();
 
             CustomSabersPresent = IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "Saber Mod");
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
@@ -72,8 +70,6 @@ namespace CustomColors
 
         public void OnApplicationQuit()
         {
-            GameHooks.Shutdown();
-
             SceneManager.activeSceneChanged -= SceneManagerOnActiveSceneChanged;
         }
 
@@ -390,6 +386,35 @@ namespace CustomColors
             ApplyColors();
         }
 
+        private Color GetWallColor()
+        {
+            Color col;
+            if (!Plugin.rainbowWall)
+            {
+                if (Plugin.wallColorPreset == 1)
+                    col = Plugin.ColorLeft;
+                else if (Plugin.wallColorPreset == 2)
+                    col = Plugin.ColorRight;
+                else if (Plugin.wallColorPreset == 3)
+                    col = new Color(
+                    ModPrefs.GetInt(Plugin.Name, "LeftRed", 255, true) / 255f,
+                    ModPrefs.GetInt(Plugin.Name, "LeftGreen", 4, true) / 255f,
+                    ModPrefs.GetInt(Plugin.Name, "LeftBlue", 4, true) / 255f);
+                else if (Plugin.wallColorPreset == 4)
+                    col = new Color(
+                    ModPrefs.GetInt(Plugin.Name, "RightRed", 255, true) / 255f,
+                    ModPrefs.GetInt(Plugin.Name, "RightGreen", 4, true) / 255f,
+                    ModPrefs.GetInt(Plugin.Name, "RightBlue", 4, true) / 255f);
+                else
+                    col = ColorsUI.OtherPresets[Plugin.wallColorPreset].Item1;
+            }
+            else
+            {
+                col = new Color(UnityEngine.Random.Range(0f, 1.5f), UnityEngine.Random.Range(0f, 1.5f), UnityEngine.Random.Range(0f, 1.5f));
+            }
+            return col;
+        }
+
         public void ApplyColors()
         {
             if (_colorInit && _overrideCustomSabers && safeSaberOverride)
@@ -399,7 +424,11 @@ namespace CustomColors
 
             if (disablePlugin == false || queuedDisable)
             {
-               
+
+                //                [CustomColorsEdit] Mesh renderer material name is ObstacleCore(Instance)
+                //[CustomColorsEdit] Mesh renderer material name is ObstacleCoreInside(Instance)
+                //[CustomColorsEdit] Mesh renderer material name is ObstacleFrame(Instance)
+
                 if (_colorInit) return;
 
 
@@ -487,7 +516,22 @@ namespace CustomColors
                     }
 
                 }
-
+                
+                if (Plugin.wallColorPreset != 0)
+                {
+                    var wallColor = GetWallColor();
+                    var coreObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleCore" || m.name == "ObstacleCoreInside");
+                    foreach (Material m in coreObstacleMaterials)
+                    {
+                        m.color = wallColor;
+                        m.SetColor("_AddColor", (wallColor / 4f).ColorWithAlpha(0f));
+                    }
+                    var frameObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleFrame");
+                    foreach (Material m in frameObstacleMaterials)
+                    {
+                        m.color = wallColor;
+                    }
+                }
 
                 //Logo Disable if needed
                 /*

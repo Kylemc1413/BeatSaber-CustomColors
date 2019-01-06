@@ -34,10 +34,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ColorsUI.cs" />
-    <Compile Include="GameHooks.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Redirection.cs" />
     <Compile Include="ReflectionUtil.cs" />
   </ItemGroup>
   <ItemGroup>

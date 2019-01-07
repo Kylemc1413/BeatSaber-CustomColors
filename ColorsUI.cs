@@ -22,10 +22,10 @@ namespace CustomColors
         public static List<Tuple<Color, string>> ColorPresets = new List<Tuple<Color, string>>
         {
             {new Color(), "User"},
-            {new Color(1, 0, 0), "Default Red"},
-            {new Color(0, .706f, 1), "Default Blue"},
+            {new Color(1, 0.0156862745f, 0.0156862745f), "Default Red"},
+            {new Color(0.00001413f, .706f, 1), "Default Blue"},
             {new Color(0, .98f, 2.157f), "Electric Blue"},
-            {new Color(0, 1, 0), "Green"},
+            {new Color(0.00001413f, 1, 0), "Green"},
             {new Color(1.05f, 0, 2.188f), "Purple"},
             {new Color(2.157f ,.588f, 0), "Orange"},
             {new Color(2.157f, 1.76f, 0), "Yellow" },
@@ -44,7 +44,7 @@ namespace CustomColors
             {new Color(), "User Left" },
             {new Color(), "User Right" },
             {new Color(0, .98f, 2.157f), "Electric Blue"},
-            {new Color(0, 1, 0), "Green"},
+            {new Color(0.00001413f, 1, 0), "Green"},
             {new Color(1.05f, 0, 2.188f), "Purple"},
             {new Color(2.157f ,.588f, 0), "Orange"},
             {new Color(2.157f, 1.76f, 0), "Yellow" },

@@ -10,9 +10,13 @@ namespace CustomColors
 {
     public class Plugin : IPlugin
     {
+       
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.10.0";
-
+        public const string Version = "1.10.3";
+        public delegate void ColorsApplied();
+        public delegate void SettingsChanged();
+        public static event SettingsChanged CCSettingsChanged;
+        public static event ColorsApplied ColorsAppliedEvent;
         public static Color ColorLeft = new Color(1, 0, 0);
         public static Color ColorRight = new Color(0, 0, 1);
         public static Color ColorLeftLight = new Color(1, 0, 0);
@@ -34,8 +38,8 @@ namespace CustomColors
         public const int Min = 0;
         public static float brightness = 1f;
         public static bool rainbowWall = false;
-        public static int previewChangeAttempts = 5;
         public static float lerpControl = 0;
+        public static bool gameScene = false;
         string IPlugin.Name => Name;
         string IPlugin.Version => Version;
         static bool _colorInit = false;
@@ -83,13 +87,15 @@ namespace CustomColors
 
         void SceneManagerOnActiveSceneChanged(Scene arg0, Scene scene)
         {
-
+            gameScene = false;
             ReadPreferences();
             GetObjects();
             InvalidateColors();
 
             if (CustomSabersPresent && scene.name == "Menu")
                 _customsInit = true;
+            if (scene.name == "GameCore")
+                gameScene = true;
 
             if (disablePlugin)
             {
@@ -267,8 +273,11 @@ namespace CustomColors
                 }
                 ColorLeftLight *= brightness;
                 ColorRightLight *= brightness;
-            }
+                GetWallColor();
 
+
+            }
+            CCSettingsChanged?.Invoke();
         }
 
         void GetObjects()
@@ -327,7 +336,6 @@ namespace CustomColors
             if (loading)
             {
                 _customsInit = false;
-                previewChangeAttempts = 4;
             }
 
             else
@@ -339,8 +347,6 @@ namespace CustomColors
         {
             //       Log("Attempting Override of  Saber");
             Transform saberObject = null;
-            if (previewChangeAttempts <= 0 && SceneManager.GetActiveScene().name == "Menu") return true;
-            bool alreadyChanged = true;
             if (SceneManager.GetActiveScene().name == "Menu" && CustomSabersPresent)
             {
                 //         Log("Finding Preview");
@@ -350,7 +356,6 @@ namespace CustomColors
             else
                 saberObject = GameObject.Find(objectName)?.transform;
             if (saberObject == null) return false;
-            //        Log(previewChangeAttempts.ToString());
             var saberRenderers = saberObject.GetComponentsInChildren<Renderer>();
             if (saberRenderers == null) return false;
 
@@ -368,24 +373,13 @@ namespace CustomColors
                         if (renderMaterial.HasProperty("_Glow") && renderMaterial.GetFloat("_Glow") > 0 ||
                             renderMaterial.HasProperty("_Bloom") && renderMaterial.GetFloat("_Bloom") > 0)
                         {
-                            if (renderMaterial.GetColor("_Color") != color)
-                            {
-                                alreadyChanged = false;
-
-                            }
                             renderMaterial.SetColor("_Color", color);
                         }
                     }
                 }
 
             }
-            if (!alreadyChanged)
-                return true;
-            else
-            {
-                previewChangeAttempts -= 1;
-                return false;
-            }
+            return true;
 
         }
 
@@ -571,6 +565,7 @@ namespace CustomColors
                     colorManager.RefreshColors();
                 }
                 safeSaberOverride = true;
+                ColorsAppliedEvent?.Invoke();
             }
             if (disablePlugin && allowEnvironmentColors && _overrideCustomSabers)
             {
@@ -587,6 +582,7 @@ namespace CustomColors
 
         public static void SetWallColors()
         {
+            if (!gameScene) return;
             if (rainbowWall)
             {
                 if (CurrentWallColor == wallColor)

@@ -12,7 +12,7 @@ namespace CustomColors
     {
        
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.10.3";
+        public const string Version = "1.10.5";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;
@@ -319,12 +319,24 @@ namespace CustomColors
             {
                 if (disablePlugin) return;
                 //          Log("Attempting Override of Custom Sabers");
-                _customsInit = OverrideSaber("LeftSaber", ColorLeft) && OverrideSaber("RightSaber", ColorRight);
+                _customsInit = OverrideSaber("LeftSaber", ColorLeft) || OverrideSaber("RightSaber", ColorRight);
+                if(_customsInit)
+                {
+                    //Reoverride attempt both once one attempt succeeds, to try and account for one saber cases, etc
+                    OverrideSaber("LeftSaber", ColorLeft);
+                    OverrideSaber("RightSaber", ColorRight);
+                }
             }
             else
             {
                 //            Log("Attempting Override of Custom Sabers");
-                _customsInit = OverrideSaber("LeftSaber", colorsSetter.GetPrivateField<Color>("_overrideColorB")) && OverrideSaber("RightSaber", colorsSetter.GetPrivateField<Color>("_overrideColorA"));
+                _customsInit = OverrideSaber("LeftSaber", colorsSetter.GetPrivateField<Color>("_overrideColorB")) || OverrideSaber("RightSaber", colorsSetter.GetPrivateField<Color>("_overrideColorA"));
+                if (_customsInit)
+                {
+                    //Reoverride attempt both once one attempt succeeds, to try and account for one saber cases, etc
+                    OverrideSaber("LeftSaber", colorsSetter.GetPrivateField<Color>("_overrideColorB"));
+                    OverrideSaber("RightSaber", colorsSetter.GetPrivateField<Color>("_overrideColorA"));
+                }
             }
 
         }

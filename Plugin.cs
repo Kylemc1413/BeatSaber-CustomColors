@@ -12,11 +12,13 @@ namespace CustomColors
     {
        
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.10.3";
+        public const string Version = "1.10.4";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;
         public static event ColorsApplied ColorsAppliedEvent;
+        private static BeatmapCharacteristicSelectionViewController _charicteristicSelectionController;
+        internal static string selectedCharacteristic = "";
         public static Color ColorLeft = new Color(1, 0, 0);
         public static Color ColorRight = new Color(0, 0, 1);
         public static Color ColorLeftLight = new Color(1, 0, 0);
@@ -283,6 +285,7 @@ namespace CustomColors
         void GetObjects()
         {
 
+
             _scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
             _prePassLights = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>();
             var renderers = UnityEngine.Object.FindObjectsOfType<Renderer>();
@@ -293,6 +296,20 @@ namespace CustomColors
                     .Select(renderer => renderer.material)
                     .Where(material => material.shader.name == "Custom/ParametricBox" || material.shader.name == "Custom/ParametricBoxOpaque")
             );
+
+            if (_charicteristicSelectionController == null)
+            {
+                _charicteristicSelectionController = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicSelectionViewController>().First();
+                if (_charicteristicSelectionController == null) return;
+                _charicteristicSelectionController.didSelectBeatmapCharacteristicEvent += _charicteristicSelectionController_didSelectBeatmapCharacteristicEvent;
+            }
+
+
+        }
+
+        private void _charicteristicSelectionController_didSelectBeatmapCharacteristicEvent(BeatmapCharacteristicSelectionViewController arg1, BeatmapCharacteristicSO arg2)
+        {
+            selectedCharacteristic = arg2.characteristicName;
         }
 
         void InvalidateColors()
@@ -319,12 +336,18 @@ namespace CustomColors
             {
                 if (disablePlugin) return;
                 //          Log("Attempting Override of Custom Sabers");
+                if(selectedCharacteristic != "One Saber")
                 _customsInit = OverrideSaber("LeftSaber", ColorLeft) && OverrideSaber("RightSaber", ColorRight);
+                else
+                    _customsInit = OverrideSaber("LeftSaber", ColorLeft) || OverrideSaber("RightSaber", ColorRight);
             }
             else
             {
                 //            Log("Attempting Override of Custom Sabers");
-                _customsInit = OverrideSaber("LeftSaber", colorsSetter.GetPrivateField<Color>("_overrideColorB")) && OverrideSaber("RightSaber", colorsSetter.GetPrivateField<Color>("_overrideColorA"));
+                if (selectedCharacteristic != "One Saber")
+                    _customsInit = OverrideSaber("LeftSaber", colorsSetter.GetPrivateField<Color>("_overrideColorB")) && OverrideSaber("RightSaber", colorsSetter.GetPrivateField<Color>("_overrideColorA"));
+                else
+                    _customsInit = OverrideSaber("LeftSaber", colorsSetter.GetPrivateField<Color>("_overrideColorB")) || OverrideSaber("RightSaber", colorsSetter.GetPrivateField<Color>("_overrideColorA"));
             }
 
         }
@@ -482,6 +505,7 @@ namespace CustomColors
                     //         Log($"Set scriptable color: {scriptableColor.name}");
                 }
                 Log("ScriptableColors modified!");
+                if(colorManager != null)
                 colorManager.RefreshColors();
 
                 foreach (var prePassLight in _prePassLights)

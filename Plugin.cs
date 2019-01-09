@@ -12,7 +12,7 @@ namespace CustomColors
     {
        
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.10.5";
+        public const string Version = "1.10.6";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;
@@ -340,7 +340,12 @@ namespace CustomColors
             }
 
         }
-
+        public static void OverrideCustomSaberColors(Color left, Color right)
+        {
+            if (!_overrideCustomSabers || !allowEnvironmentColors) return;
+            OverrideSaber("LeftSaber", left);
+            OverrideSaber("RightSaber", right);
+        }
         public static void ForceOverrideCustomSabers(bool loading)
         {
             //     Log("Force Override Called");

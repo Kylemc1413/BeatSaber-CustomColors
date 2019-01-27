@@ -12,7 +12,7 @@ namespace CustomColors
     {
        
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.10.6";
+        public const string Version = "1.10.8";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;
@@ -275,7 +275,6 @@ namespace CustomColors
                 ColorRightLight *= brightness;
                 GetWallColor();
 
-
             }
             CCSettingsChanged?.Invoke();
         }
@@ -397,14 +396,14 @@ namespace CustomColors
 
             }
             return true;
-
+            
         }
 
         public void OnUpdate()
         {
             ApplyColors();
-            if (rainbowWall)
-                SetWallColors();
+
+
         }
 
         private static Color GetWallColor()
@@ -432,8 +431,8 @@ namespace CustomColors
             else
             {
                 col = Rainbow.GetRandomColor();
-                if (!_colorInit)
-                    CurrentWallColor = Rainbow.GetRandomColor();
+                if(!_colorInit)
+                CurrentWallColor = col;
             }
             return col;
         }
@@ -545,7 +544,10 @@ namespace CustomColors
 
                     coreObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleCore" || m.name == "ObstacleCoreInside");
                     frameObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleFrame");
-                    SetWallColors();
+                    if (gameScene && rainbowWall)
+                        SharedCoroutineStarter.instance.StartCoroutine(RainbowWalls());
+                    else
+                        SetWallColors();
                 }
 
                 //Logo Disable if needed
@@ -599,7 +601,29 @@ namespace CustomColors
 
         public static void SetWallColors()
         {
-            if (!gameScene) return;
+
+                wallColor = GetWallColor();
+                if (coreObstacleMaterials != null && frameObstacleMaterials != null)
+                {
+                    foreach (Material m in coreObstacleMaterials)
+                    {
+                        m.color = wallColor;
+                        m.SetColor("_AddColor", (wallColor / 4f).ColorWithAlpha(0f));
+                    }
+                    foreach (Material m in frameObstacleMaterials)
+                    {
+                        m.color = wallColor;
+                    }
+                }
+            
+
+        }
+
+
+        public static IEnumerator RainbowWalls()
+        {
+            yield return new WaitForSeconds(0.08f);
+            if (!gameScene) yield break; 
             if (rainbowWall)
             {
                 if (CurrentWallColor == wallColor)
@@ -607,10 +631,10 @@ namespace CustomColors
                     wallColor = GetWallColor();
                     lerpControl = 0;
                 }
-
-                CurrentWallColor = Color.Lerp(CurrentWallColor, wallColor, lerpControl);
                 if (lerpControl < 1)
-                    lerpControl += Time.deltaTime / 4f;
+                    lerpControl += 0.08f / 1.25f;
+                CurrentWallColor = Color.Lerp(CurrentWallColor, wallColor, lerpControl);
+
                 if (coreObstacleMaterials != null && frameObstacleMaterials != null)
                 {
                     foreach (Material m in coreObstacleMaterials)
@@ -625,22 +649,7 @@ namespace CustomColors
                 }
 
             }
-            else
-            {
-                wallColor = GetWallColor();
-                if (coreObstacleMaterials != null && frameObstacleMaterials != null)
-                {
-                    foreach (Material m in coreObstacleMaterials)
-                    {
-                        m.color = wallColor;
-                        m.SetColor("_AddColor", (wallColor / 4f).ColorWithAlpha(0f));
-                    }
-                    foreach (Material m in frameObstacleMaterials)
-                    {
-                        m.color = wallColor;
-                    }
-                }
-            }
+            SharedCoroutineStarter.instance.StartCoroutine(RainbowWalls());
 
 
 

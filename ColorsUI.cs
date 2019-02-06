@@ -35,6 +35,7 @@ namespace CustomColors
             {new Color(0.761f, 0.125f, 0.867f), "OST Purple"},
             {new Color(0.349f, 0.69f, 0.957f), "Klouder Blue"},
             {new Color(0.0352941176f, 0.929411765f, 0.764705882f), "Miku"},
+            {new Color(0f, 0.28000000000000003f, 0.55000000000000004f), "Dark Blue"},
         };
         public static List<Tuple<Color, string>> OtherPresets = new List<Tuple<Color, string>>
         {
@@ -55,6 +56,7 @@ namespace CustomColors
             {new Color(0.761f, 0.125f, 0.867f), "OST Purple"},
             {new Color(0.349f, 0.69f, 0.957f), "Klouder Blue"},
             {new Color(0.0352941176f, 0.929411765f, 0.764705882f), "Miku"},
+            {new Color(0f, 0.28000000000000003f, 0.55000000000000004f), "Dark Blue"},
         };
         
         public static void CreateSettingsUI()
@@ -202,7 +204,7 @@ namespace CustomColors
         {
             foreach (IPlugin plugin in PluginManager.Plugins)
             {
-                if (plugin.ToString() == "ChromaToggle.Plugin")
+                if (plugin.ToString() == "Chroma.Plugin")
                 {
                     Plugin.Log("ChromaToggle Detected, Disabling Custom Colors");
                     Plugin.disablePlugin = true;

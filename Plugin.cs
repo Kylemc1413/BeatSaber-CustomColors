@@ -12,7 +12,7 @@ namespace CustomColors
     {
        
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.10.8";
+        public const string Version = "1.10.9";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;
@@ -499,7 +499,7 @@ namespace CustomColors
                 }
                 Log("ScriptableColors modified!");
                 colorManager.RefreshColors();
-
+                
                 foreach (var prePassLight in _prePassLights)
                 {
 
@@ -538,6 +538,7 @@ namespace CustomColors
                     }
 
                 }
+                
 
                 if (Plugin.wallColorPreset != 0)
                 {

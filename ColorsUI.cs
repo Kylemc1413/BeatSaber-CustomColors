@@ -36,6 +36,7 @@ namespace CustomColors
             {new Color(0.349f, 0.69f, 0.957f), "Klouder Blue"},
             {new Color(0.0352941176f, 0.929411765f, 0.764705882f), "Miku"},
             {new Color(0f, 0.28000000000000003f, 0.55000000000000004f), "Dark Blue"},
+            {new Color(1f, 0.388f, .7724f), "Pink"},
         };
         public static List<Tuple<Color, string>> OtherPresets = new List<Tuple<Color, string>>
         {
@@ -57,6 +58,7 @@ namespace CustomColors
             {new Color(0.349f, 0.69f, 0.957f), "Klouder Blue"},
             {new Color(0.0352941176f, 0.929411765f, 0.764705882f), "Miku"},
             {new Color(0f, 0.28000000000000003f, 0.55000000000000004f), "Dark Blue"},
+            {new Color(1f, 0.388f, .7724f), "Pink"},
         };
         
         public static void CreateSettingsUI()

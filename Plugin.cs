@@ -10,9 +10,9 @@ namespace CustomColors
 {
     public class Plugin : IPlugin
     {
-       
+
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.10.9";
+        public const string Version = "1.10.11";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;
@@ -135,12 +135,8 @@ namespace CustomColors
         {
             _overrideCustomSabers = ModPrefs.GetBool(Name, "OverrideCustomSabers", true, true);
             allowEnvironmentColors = ModPrefs.GetBool(Plugin.Name, "allowEnvironmentColors", true, true);
-            if (disablePlugin == false)
-            {
-                disablePlugin = ModPrefs.GetBool(Name, "disablePlugin", false, true);
-                if (disablePlugin) queuedDisable = true;
-
-            }
+            disablePlugin = ModPrefs.GetBool(Name, "disablePlugin", false, true);
+            if (disablePlugin) queuedDisable = true;
 
             if (queuedDisable)
             {
@@ -281,17 +277,8 @@ namespace CustomColors
 
         void GetObjects()
         {
-
             _scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
             _prePassLights = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>();
-            var renderers = UnityEngine.Object.FindObjectsOfType<Renderer>();
-            _environmentLights.Clear();
-            _environmentLights.AddRange(
-                renderers
-                    .Where(renderer => renderer.materials.Length > 0)
-                    .Select(renderer => renderer.material)
-                    .Where(material => material.shader.name == "Custom/ParametricBox" || material.shader.name == "Custom/ParametricBoxOpaque")
-            );
         }
 
         void InvalidateColors()
@@ -319,7 +306,7 @@ namespace CustomColors
                 if (disablePlugin) return;
                 //          Log("Attempting Override of Custom Sabers");
                 _customsInit = OverrideSaber("LeftSaber", ColorLeft) || OverrideSaber("RightSaber", ColorRight);
-                if(_customsInit)
+                if (_customsInit)
                 {
                     //Reoverride attempt both once one attempt succeeds, to try and account for one saber cases, etc
                     OverrideSaber("LeftSaber", ColorLeft);
@@ -396,7 +383,7 @@ namespace CustomColors
 
             }
             return true;
-            
+
         }
 
         public void OnUpdate()
@@ -431,8 +418,8 @@ namespace CustomColors
             else
             {
                 col = Rainbow.GetRandomColor();
-                if(!_colorInit)
-                CurrentWallColor = col;
+                if (!_colorInit)
+                    CurrentWallColor = col;
             }
             return col;
         }
@@ -452,7 +439,6 @@ namespace CustomColors
                 //[CustomColorsEdit] Mesh renderer material name is ObstacleFrame(Instance)
 
                 if (_colorInit) return;
-
 
                 var colorManager = Resources.FindObjectsOfTypeAll<ColorManager>().FirstOrDefault();
                 if (colorManager == null) return;
@@ -499,7 +485,7 @@ namespace CustomColors
                 }
                 Log("ScriptableColors modified!");
                 colorManager.RefreshColors();
-                
+
                 foreach (var prePassLight in _prePassLights)
                 {
 
@@ -538,7 +524,7 @@ namespace CustomColors
                     }
 
                 }
-                
+
 
                 if (Plugin.wallColorPreset != 0)
                 {
@@ -603,20 +589,20 @@ namespace CustomColors
         public static void SetWallColors()
         {
 
-                wallColor = GetWallColor();
-                if (coreObstacleMaterials != null && frameObstacleMaterials != null)
+            wallColor = GetWallColor();
+            if (coreObstacleMaterials != null && frameObstacleMaterials != null)
+            {
+                foreach (Material m in coreObstacleMaterials)
                 {
-                    foreach (Material m in coreObstacleMaterials)
-                    {
-                        m.color = wallColor;
-                        m.SetColor("_AddColor", (wallColor / 4f).ColorWithAlpha(0f));
-                    }
-                    foreach (Material m in frameObstacleMaterials)
-                    {
-                        m.color = wallColor;
-                    }
+                    m.color = wallColor;
+                    m.SetColor("_AddColor", (wallColor / 4f).ColorWithAlpha(0f));
                 }
-            
+                foreach (Material m in frameObstacleMaterials)
+                {
+                    m.color = wallColor;
+                }
+            }
+
 
         }
 
@@ -624,7 +610,7 @@ namespace CustomColors
         public static IEnumerator RainbowWalls()
         {
             yield return new WaitForSeconds(0.08f);
-            if (!gameScene) yield break; 
+            if (!gameScene) yield break;
             if (rainbowWall)
             {
                 if (CurrentWallColor == wallColor)

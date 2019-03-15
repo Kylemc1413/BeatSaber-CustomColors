@@ -72,7 +72,7 @@ namespace CustomColors
         private void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
         {
             if (ctInstalled == false)
-                if (arg0.name == "Menu")
+                if (arg0.name == "MenuCore")
                 {
                     ColorsUI.CreateSettingsUI();
 
@@ -92,7 +92,7 @@ namespace CustomColors
             GetObjects();
             InvalidateColors();
 
-            if (CustomSabersPresent && scene.name == "Menu")
+            if (CustomSabersPresent && scene.name == "MenuCore")
                 _customsInit = true;
             if (scene.name == "GameCore")
                 gameScene = true;
@@ -135,7 +135,7 @@ namespace CustomColors
         {
             _overrideCustomSabers = ModPrefs.GetBool(Name, "OverrideCustomSabers", true, true);
             allowEnvironmentColors = ModPrefs.GetBool(Plugin.Name, "allowEnvironmentColors", true, true);
-            disablePlugin = ModPrefs.GetBool(Name, "disablePlugin", false, true);
+            disablePlugin = ModPrefs.GetBool(Name, "disablePlugin", false, true) || ctInstalled;
             if (disablePlugin) queuedDisable = true;
 
             if (queuedDisable)
@@ -297,7 +297,7 @@ namespace CustomColors
                 if (SceneManager.GetActiveScene().name != "GameCore") return;
             }
             else
-              if (SceneManager.GetActiveScene().name != "Menu" && SceneManager.GetActiveScene().name != "GameCore") return;
+              if (SceneManager.GetActiveScene().name != "MenuCore" && SceneManager.GetActiveScene().name != "GameCore") return;
             if (_customsInit) return;
             if (disablePlugin && !allowEnvironmentColors) return;
 
@@ -350,7 +350,7 @@ namespace CustomColors
         {
             //       Log("Attempting Override of  Saber");
             Transform saberObject = null;
-            if (SceneManager.GetActiveScene().name == "Menu" && CustomSabersPresent)
+            if (SceneManager.GetActiveScene().name == "MenuCore" && CustomSabersPresent)
             {
                 //         Log("Finding Preview");
                 saberObject = GameObject.Find("Saber Preview").transform.Find(objectName);
@@ -428,7 +428,7 @@ namespace CustomColors
         {
             if (_colorInit && _overrideCustomSabers && safeSaberOverride)
                 EnsureCustomSabersOverridden();
-            if (SceneManager.GetActiveScene().name == "Menu" && CustomSabersPresent && _overrideCustomSabers)
+            if (SceneManager.GetActiveScene().name == "MenuCore" && CustomSabersPresent && _overrideCustomSabers)
                 EnsureCustomSabersOverridden();
 
             if (disablePlugin == false || queuedDisable)
@@ -455,7 +455,7 @@ namespace CustomColors
                 {
                     if (scriptableColor != null)
                     {
-                        //     Log(scriptableColor.name);
+                             Log(scriptableColor.name);
                         //     Log(scriptableColor.color.ToString());
                         /*
                         if (scriptableColor.name == "Color Red" || scriptableColor.name == "BaseColor1")
@@ -467,15 +467,17 @@ namespace CustomColors
                             scriptableColor.SetColor(ColorRight);
                         }
                         */
-                        if (scriptableColor.name == "Color0")
+                        if (scriptableColor.name == "BaseNoteColor0")
                             scriptableColor.SetColor(ColorLeft);
                         else if (scriptableColor.name == "BaseColor0")
                             scriptableColor.SetColor(ColorRightLight);
-                        else if (scriptableColor.name == "Color1")
+                        else if (scriptableColor.name == "BaseNoteColor1")
                             scriptableColor.SetColor(ColorRight);
                         else if (scriptableColor.name == "BaseColor1")
                             scriptableColor.SetColor(ColorLeftLight);
                         else if (scriptableColor.name == "MenuEnvLight0")
+                            scriptableColor.SetColor(ColorLeftLight);
+                        else if (scriptableColor.name == "MenuEnvLight1")
                             scriptableColor.SetColor(ColorRightLight);
 
                         //      Log(scriptableColor.name);
@@ -512,6 +514,7 @@ namespace CustomColors
                 }
 
                 Log("PrePassLight colors set!");
+                /*
                 SpriteRenderer[] sprites = Resources.FindObjectsOfTypeAll<SpriteRenderer>();
                 foreach (var sprite in sprites)
                 {
@@ -524,7 +527,7 @@ namespace CustomColors
                     }
 
                 }
-
+                */
 
                 if (Plugin.wallColorPreset != 0)
                 {
@@ -544,13 +547,13 @@ namespace CustomColors
                GameObject.Destroy(logo.gameObject);
                */
 
-                if (SceneManager.GetActiveScene().name == "Menu")
+                if (SceneManager.GetActiveScene().name == "MenuCore")
                 {
-
+                    /*
                     var flickeringLetter = UnityEngine.Object.FindObjectOfType<FlickeringNeonSign>();
                     if (flickeringLetter != null)
                         ReflectionUtil.SetPrivateField(flickeringLetter, "_onColor", ColorRightLight);
-
+                        */
                     Log("Menu colors set!");
                 }
 
@@ -562,7 +565,15 @@ namespace CustomColors
                 {
                     if (colorsSetter != null)
                     {
+                        try
+                        {
                         colorsSetter.Awake();
+                        }
+                        catch
+                        {
+                            Log("Failed to Initialize Color Setter");
+                        }
+
                         overrideSaberOverride = true;
                     }
                 }

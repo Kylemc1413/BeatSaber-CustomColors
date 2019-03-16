@@ -13,7 +13,7 @@ namespace CustomColors
         public static BS_Utils.Utilities.Config Config = new BS_Utils.Utilities.Config("CustomColors");
 
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.11.1";
+        public const string Version = "1.11.2";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;
@@ -55,6 +55,7 @@ namespace CustomColors
         SimpleColorSO[] _scriptableColors;
         TubeBloomPrePassLight[] _prePassLights;
         private static bool CustomSabersPresent;
+        internal static bool safe = false;
 
         public static IEnumerable<Material> coreObstacleMaterials;
         public static IEnumerable<Material> frameObstacleMaterials;
@@ -91,11 +92,13 @@ namespace CustomColors
 
         void SceneManagerOnActiveSceneChanged(Scene arg0, Scene scene)
         {
+            safe = false;
             gameScene = false;
             ReadPreferences();
             GetObjects();
             InvalidateColors();
-
+            if (scene.name == "GameCore" || scene.name == "MenuCore")
+                safe = true;
             if (CustomSabersPresent && scene.name == "MenuCore")
                 _customsInit = true;
             if (scene.name == "GameCore")
@@ -377,6 +380,7 @@ namespace CustomColors
 
         public void OnUpdate()
         {
+            if(safe)
             ApplyColors();
 
 

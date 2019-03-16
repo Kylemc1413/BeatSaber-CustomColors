@@ -10,9 +10,10 @@ namespace CustomColors
 {
     public class Plugin : IPlugin
     {
+        public static BS_Utils.Utilities.Config Config = new BS_Utils.Utilities.Config("CustomColors");
 
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.10.11";
+        public const string Version = "1.11.1";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;
@@ -21,6 +22,9 @@ namespace CustomColors
         public static Color ColorRight = new Color(0, 0, 1);
         public static Color ColorLeftLight = new Color(1, 0, 0);
         public static Color ColorRightLight = new Color(0, 0, 1);
+        public static Color LeftUserColor;
+        public static Color RightUserColor;
+
         public static Color CurrentWallColor;
         public static Color wallColor;
         public static bool _overrideCustomSabers = true;
@@ -133,22 +137,22 @@ namespace CustomColors
 
         void ReadPreferences()
         {
-            _overrideCustomSabers = ModPrefs.GetBool(Name, "OverrideCustomSabers", true, true);
-            allowEnvironmentColors = ModPrefs.GetBool(Plugin.Name, "allowEnvironmentColors", true, true);
-            disablePlugin = ModPrefs.GetBool(Name, "disablePlugin", false, true) || ctInstalled;
+            _overrideCustomSabers = Config.GetBool("Core", "OverrideCustomSabers", true, true);
+            allowEnvironmentColors = Config.GetBool("Core", "allowEnvironmentColors", true, true);
+            disablePlugin = Config.GetBool("Core", "disablePlugin", false, true) || ctInstalled;
             if (disablePlugin) queuedDisable = true;
 
             if (queuedDisable)
             {
                 ColorLeft = new Color(
-                                       ModPrefs.GetInt(Name, "LeftRed", 255, true) / 255f,
-                                       ModPrefs.GetInt(Name, "LeftGreen", 4, true) / 255f,
-                                       ModPrefs.GetInt(Name, "LeftBlue", 4, true) / 255f
+                                       255f,
+                                       4f / 255f,
+                                       4f / 255f
                                    );
                 ColorRight = new Color(
-                      ModPrefs.GetInt(Name, "RightRed", 0, true) / 255f,
-                      ModPrefs.GetInt(Name, "RightGreen", 192, true) / 255f,
-                      ModPrefs.GetInt(Name, "RightBlue", 255, true) / 255f
+                      0,
+                      192f / 255f,
+                      1f
                   );
                 ColorLeftLight = new Color(1, 4 / 255f, 4 / 255f);
                 ColorRightLight = new Color(0, 192 / 255f, 1);
@@ -157,15 +161,14 @@ namespace CustomColors
 
             if (disablePlugin == false)
             {
-                userIncrement = ModPrefs.GetInt(Name, "userIncrement", 10, true);
-                leftColorPreset = ModPrefs.GetInt(Name, "leftColorPreset", 0, true);
-                rightColorPreset = ModPrefs.GetInt(Name, "rightColorPreset", 0, true);
-                wallColorPreset = ModPrefs.GetInt(Name, "wallColorPreset", 0, true);
-                leftLightPreset = ModPrefs.GetInt(Name, "leftLightPreset", 1, true);
-                rightLightPreset = ModPrefs.GetInt(Name, "rightLightPreset", 2, true);
+                leftColorPreset = Config.GetInt("Presets", "leftNoteColorPreset", 0, true);
+                rightColorPreset = Config.GetInt("Presets", "rightNoteColorPreset", 0, true);
+                wallColorPreset = Config.GetInt("Presets", "wallColorPreset", 0, true);
+                leftLightPreset = Config.GetInt("Presets", "leftLightPreset", 1, true);
+                rightLightPreset = Config.GetInt("Presets", "rightLightPreset", 2, true);
 
-                brightness = ModPrefs.GetFloat(Name, "Brightness", 1, true);
-                rainbowWall = ModPrefs.GetBool(Name, "rainbowWalls", false, true);
+                brightness = Config.GetFloat("Core", "Brightness", 1, true);
+                rainbowWall = Config.GetBool("Presets", "rainbowWalls", false, true);
                 //Make sure preset exists, else default to user
                 if (leftColorPreset > ColorsUI.ColorPresets.Count) leftColorPreset = 0;
                 if (rightColorPreset > ColorsUI.ColorPresets.Count) rightColorPreset = 0;
@@ -173,22 +176,24 @@ namespace CustomColors
                 if (rightLightPreset > ColorsUI.OtherPresets.Count) rightLightPreset = 0;
                 if (wallColorPreset > ColorsUI.OtherPresets.Count) wallColorPreset = 0;
 
-                //If preset is user get modprefs for colors, otherwise use preset
+                //If preset is user get config values for colors, otherwise use preset
+                LeftUserColor = new Color(
+                   Config.GetFloat("User Preset Colors", "Left User Preset R", 255, true) / 255f,
+                   Config.GetFloat("User Preset Colors", "Left User Preset G", 4, true) / 255f,
+                   Config.GetFloat("User Preset Colors", "Left User Preset B", 4, true) / 255f
+               );
+                RightUserColor = new Color(
+                      Config.GetFloat("User Preset Colors", "Right User Preset R", 0, true) / 255f ,
+                      Config.GetFloat("User Preset Colors", "Right User Preset G", 192, true) / 255f,
+                      Config.GetFloat("User Preset Colors", "Right User Preset B", 255, true) / 255f
+                  );
                 if (leftColorPreset == 0)
-                    ColorLeft = new Color(
-                        ModPrefs.GetInt(Name, "LeftRed", 255, true) / 255f,
-                        ModPrefs.GetInt(Name, "LeftGreen", 4, true) / 255f,
-                        ModPrefs.GetInt(Name, "LeftBlue", 4, true) / 255f
-                    );
+                    ColorLeft = LeftUserColor;
                 else
                     ColorLeft = ColorsUI.ColorPresets[leftColorPreset].Item1;
 
                 if (rightColorPreset == 0)
-                    ColorRight = new Color(
-                        ModPrefs.GetInt(Name, "RightRed", 0, true) / 255f,
-                        ModPrefs.GetInt(Name, "RightGreen", 192, true) / 255f,
-                        ModPrefs.GetInt(Name, "RightBlue", 255, true) / 255f
-                    );
+                    ColorRight = RightUserColor;
                 else
                     ColorRight = ColorsUI.ColorPresets[rightColorPreset].Item1;
 
@@ -209,19 +214,11 @@ namespace CustomColors
                             ColorLeftLight *= .8f;
                         break;
                     case 3:
-                        ColorLeftLight = new Color(
-                        ModPrefs.GetInt(Name, "LeftRed", 255, true) / 255f,
-                        ModPrefs.GetInt(Name, "LeftGreen", 4, true) / 255f,
-                        ModPrefs.GetInt(Name, "LeftBlue", 4, true) / 255f
-                    );
+                        ColorLeftLight = LeftUserColor;
                         ColorLeftLight *= .8f;
                         break;
                     case 4:
-                        ColorLeftLight = new Color(
-                        ModPrefs.GetInt(Name, "RightRed", 0, true) / 255f,
-                        ModPrefs.GetInt(Name, "RightGreen", 192, true) / 255f,
-                        ModPrefs.GetInt(Name, "RightBlue", 255, true) / 255f
-                    );
+                        ColorLeftLight = RightUserColor;
                         ColorLeftLight *= .8f;
                         break;
                     default:
@@ -246,19 +243,11 @@ namespace CustomColors
                             ColorRightLight *= .8f;
                         break;
                     case 3:
-                        ColorRightLight = new Color(
-                        ModPrefs.GetInt(Name, "LeftRed", 255, true) / 255f,
-                        ModPrefs.GetInt(Name, "LeftGreen", 4, true) / 255f,
-                        ModPrefs.GetInt(Name, "LeftBlue", 4, true) / 255f
-                    );
+                        ColorRightLight = LeftUserColor;
                         ColorRightLight *= .8f;
                         break;
                     case 4:
-                        ColorRightLight = new Color(
-                        ModPrefs.GetInt(Name, "RightRed", 0, true) / 255f,
-                        ModPrefs.GetInt(Name, "RightGreen", 192, true) / 255f,
-                        ModPrefs.GetInt(Name, "RightBlue", 255, true) / 255f
-                    );
+                        ColorRightLight = RightUserColor;
                         ColorRightLight *= .8f;
                         break;
                     default:
@@ -403,15 +392,9 @@ namespace CustomColors
                 else if (Plugin.wallColorPreset == 2)
                     col = Plugin.ColorRight;
                 else if (Plugin.wallColorPreset == 3)
-                    col = new Color(
-                    ModPrefs.GetInt(Plugin.Name, "LeftRed", 255, true) / 255f,
-                    ModPrefs.GetInt(Plugin.Name, "LeftGreen", 4, true) / 255f,
-                    ModPrefs.GetInt(Plugin.Name, "LeftBlue", 4, true) / 255f);
+                    col = LeftUserColor;
                 else if (Plugin.wallColorPreset == 4)
-                    col = new Color(
-                    ModPrefs.GetInt(Plugin.Name, "RightRed", 255, true) / 255f,
-                    ModPrefs.GetInt(Plugin.Name, "RightGreen", 4, true) / 255f,
-                    ModPrefs.GetInt(Plugin.Name, "RightBlue", 4, true) / 255f);
+                    col = RightUserColor;
                 else
                     col = ColorsUI.OtherPresets[Plugin.wallColorPreset].Item1;
             }
@@ -455,7 +438,7 @@ namespace CustomColors
                 {
                     if (scriptableColor != null)
                     {
-                             Log(scriptableColor.name);
+                        //         Log(scriptableColor.name);
                         //     Log(scriptableColor.color.ToString());
                         /*
                         if (scriptableColor.name == "Color Red" || scriptableColor.name == "BaseColor1")
@@ -468,17 +451,17 @@ namespace CustomColors
                         }
                         */
                         if (scriptableColor.name == "BaseNoteColor0")
-                            scriptableColor.SetColor(ColorLeft);
+                            scriptableColor.SetColor(ColorRight);
                         else if (scriptableColor.name == "BaseColor0")
                             scriptableColor.SetColor(ColorRightLight);
                         else if (scriptableColor.name == "BaseNoteColor1")
-                            scriptableColor.SetColor(ColorRight);
+                            scriptableColor.SetColor(ColorLeft);
                         else if (scriptableColor.name == "BaseColor1")
                             scriptableColor.SetColor(ColorLeftLight);
                         else if (scriptableColor.name == "MenuEnvLight0")
-                            scriptableColor.SetColor(ColorLeftLight);
-                        else if (scriptableColor.name == "MenuEnvLight1")
                             scriptableColor.SetColor(ColorRightLight);
+                        //   else if (scriptableColor.name == "MenuEnvLight1")
+                        //      scriptableColor.SetColor(ColorRightLight);
 
                         //      Log(scriptableColor.name);
                         //      Log(scriptableColor.color.ToString());
@@ -567,7 +550,7 @@ namespace CustomColors
                     {
                         try
                         {
-                        colorsSetter.Awake();
+                            colorsSetter.Awake();
                         }
                         catch
                         {

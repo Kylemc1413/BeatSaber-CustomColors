@@ -13,7 +13,7 @@ namespace CustomColors
         public static BS_Utils.Utilities.Config Config = new BS_Utils.Utilities.Config("CustomColors");
 
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.11.2";
+        public const string Version = "1.11.3";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;
@@ -148,7 +148,7 @@ namespace CustomColors
             if (queuedDisable)
             {
                 ColorLeft = new Color(
-                                       255f,
+                                       1f,
                                        4f / 255f,
                                        4f / 255f
                                    );
@@ -270,7 +270,7 @@ namespace CustomColors
         void GetObjects()
         {
             _scriptableColors = Resources.FindObjectsOfTypeAll<SimpleColorSO>();
-            _prePassLights = UnityEngine.Object.FindObjectsOfType<TubeBloomPrePassLight>();
+            _prePassLights = Resources.FindObjectsOfTypeAll<TubeBloomPrePassLight>();
         }
 
         void InvalidateColors()
@@ -463,7 +463,9 @@ namespace CustomColors
                         else if (scriptableColor.name == "BaseColor1")
                             scriptableColor.SetColor(ColorLeftLight);
                         else if (scriptableColor.name == "MenuEnvLight0")
-                            scriptableColor.SetColor(ColorRightLight);
+                            scriptableColor.SetColor(ColorRightLight * 1.6f);
+                        else if (scriptableColor.name == "MenuEnvLight1")
+                            scriptableColor.SetColor(ColorRightLight * 1.6f);
                         //   else if (scriptableColor.name == "MenuEnvLight1")
                         //      scriptableColor.SetColor(ColorRightLight);
 
@@ -474,25 +476,19 @@ namespace CustomColors
                 }
                 Log("ScriptableColors modified!");
                 colorManager.RefreshColors();
-
+                /*
                 foreach (var prePassLight in _prePassLights)
                 {
 
                     if (prePassLight != null)
                     {
-                        if (prePassLight.name.Contains("NeonLight (6)"))
+                        if (prePassLight.name.Contains("SaberNeon"))
                         {
                             prePassLight.color = ColorLeftLight;
 
                         }
-                        if (prePassLight.name.Contains("NeonLight (8)"))
-                        {
-                            if (prePassLight.gameObject.transform.position.ToString() == "(0.0, 17.2, 24.8)")
-                            {
-                                prePassLight.color = ColorLeftLight;
-                            }
 
-                        }
+                        
                         if (prePassLight.name.Contains("BATNeon") || prePassLight.name.Contains("ENeon"))
                             prePassLight.color = ColorRightLight;
 
@@ -501,31 +497,34 @@ namespace CustomColors
                 }
 
                 Log("PrePassLight colors set!");
-                /*
+                
                 SpriteRenderer[] sprites = Resources.FindObjectsOfTypeAll<SpriteRenderer>();
                 foreach (var sprite in sprites)
                 {
+                    Log(sprite.name);
+                    if (sprite != null)
                     if (sprite != null)
                     {
-                        if (sprite.name == "LogoSABER")
-                            sprite.color = ColorLeftLight;
-                        if (sprite.name == "LogoBAT" || sprite.name == "LogoE")
-                            sprite.color = ColorRightLight;
+                        if (sprite.name == "SaberLogo")
+                            sprite.sharedMaterial.color = ColorLeftLight;
+                        if (sprite.name == "BatLogo" || sprite.name == "LogoE")
+                            sprite.sharedMaterial.color = ColorRightLight;
                     }
 
                 }
                 */
+
+
 
                 if (Plugin.wallColorPreset != 0)
                 {
 
                     coreObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleCore" || m.name == "ObstacleCoreInside");
                     frameObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleFrame");
-                    if (gameScene && rainbowWall)
-                        SharedCoroutineStarter.instance.StartCoroutine(RainbowWalls());
-                    else
                         SetWallColors();
                 }
+                if (gameScene && rainbowWall)
+                    SharedCoroutineStarter.instance.StartCoroutine(RainbowWalls());
 
                 //Logo Disable if needed
                 /*

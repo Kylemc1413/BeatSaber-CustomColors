@@ -13,7 +13,7 @@ namespace CustomColors
         public static BS_Utils.Utilities.Config Config = new BS_Utils.Utilities.Config("CustomColors");
 
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.11.3";
+        public const string Version = "1.11.4";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;
@@ -463,9 +463,9 @@ namespace CustomColors
                         else if (scriptableColor.name == "BaseColor1")
                             scriptableColor.SetColor(ColorLeftLight);
                         else if (scriptableColor.name == "MenuEnvLight0")
-                            scriptableColor.SetColor(ColorRightLight * 1.6f);
+                            scriptableColor.SetColor(ColorRightLight);
                         else if (scriptableColor.name == "MenuEnvLight1")
-                            scriptableColor.SetColor(ColorRightLight * 1.6f);
+                            scriptableColor.SetColor(ColorRightLight);
                         //   else if (scriptableColor.name == "MenuEnvLight1")
                         //      scriptableColor.SetColor(ColorRightLight);
 
@@ -476,6 +476,15 @@ namespace CustomColors
                 }
                 Log("ScriptableColors modified!");
                 colorManager.RefreshColors();
+
+                if (SceneManager.GetActiveScene().name == "MenuCore")
+                {
+
+                    SharedCoroutineStarter.instance.StartCoroutine(SetLogoColors());
+
+
+                    Log("Menu colors set!");
+                }
                 /*
                 foreach (var prePassLight in _prePassLights)
                 {
@@ -520,8 +529,9 @@ namespace CustomColors
                 {
 
                     coreObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleCore" || m.name == "ObstacleCoreInside");
+
                     frameObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleFrame");
-                        SetWallColors();
+                    SetWallColors();
                 }
                 if (gameScene && rainbowWall)
                     SharedCoroutineStarter.instance.StartCoroutine(RainbowWalls());
@@ -581,6 +591,36 @@ namespace CustomColors
                 safeSaberOverride = true;
             }
 
+        }
+        public IEnumerator SetLogoColors()
+        {
+            yield return new WaitForSeconds(0.2f);
+            foreach (Transform t in GameObject.Find("Logo").transform)
+            {
+                Log($"Transform: {t.name}");
+                if (t.name == "BATNeon")
+                {
+                    t.GetComponent<TubeBloomPrePassLight>().color = ColorLeftLight;
+                }
+                else if (t.name == "BatLogo")
+                {
+                    t.GetComponent<SpriteRenderer>().color = ColorLeftLight * 1.4f;
+                }
+                else if (t.name == "SaberLogo")
+                {
+                    t.GetComponent<SpriteRenderer>().color = ColorRightLight * 1.4f;
+                }
+                else if (t.name == "SaberNeon")
+                {
+                    t.GetComponent<TubeBloomPrePassLight>().color = ColorRightLight;
+                }
+            }
+            var flickeringLetter = UnityEngine.Object.FindObjectOfType<FlickeringNeonSign>();
+            if (flickeringLetter != null)
+            {
+                ReflectionUtil.SetPrivateField(flickeringLetter, "_lightOnColor", ColorLeftLight);
+                ReflectionUtil.SetPrivateField(flickeringLetter, "_spriteOnColor", ColorLeftLight * 1.6f);
+            }
         }
 
         public static void SetWallColors()

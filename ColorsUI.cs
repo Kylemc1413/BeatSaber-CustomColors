@@ -65,8 +65,9 @@ namespace CustomColors
         {
             var subMenuCC = SettingsUI.CreateSubMenu("Custom Colors");
 
+            var coreMenu = subMenuCC.AddSubMenu("Core Settings", "Adjust Core Custom Colors Settings here", true);
             //Saber Override Setting for Left menu
-            var disableOption = subMenuCC.AddBool("Disable the Plugin");
+            var disableOption = coreMenu.AddBool("Disable the Plugin");
             disableOption.GetValue += delegate { return Plugin.Config.GetBool("Core", "disablePlugin", false, true); };
             disableOption.SetValue += delegate (bool value) 
             {
@@ -85,22 +86,22 @@ namespace CustomColors
 
 
             };
-            var environmentColorsOption = subMenuCC.AddBool("Allow Color Overrides");
+            var environmentColorsOption = coreMenu.AddBool("Allow Color Overrides");
             environmentColorsOption.GetValue += delegate { return Plugin.Config.GetBool("Core", "allowEnvironmentColors", true, true); };
             environmentColorsOption.SetValue += delegate (bool value) { Plugin.Config.SetBool("Core", "allowEnvironmentColors", value); };
 
-            var saberOverrideL = subMenuCC.AddBool("Override Custom Saber Color");
+            var saberOverrideL = coreMenu.AddBool("Override Custom Saber Color");
             saberOverrideL.GetValue += delegate { return Plugin.Config.GetBool("Core", "OverrideCustomSabers", true, true); };
             saberOverrideL.SetValue += delegate (bool value) { Plugin.Config.SetBool("Core", "OverrideCustomSabers", value); };
 
             //Light brightness
             float[] brightnessValues = new float[11] { 0, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1f };
-            var Brightness = subMenuCC.AddList("Light Brightness", brightnessValues);
+            var Brightness = coreMenu.AddList("Light Brightness", brightnessValues);
             Brightness.GetValue += delegate { return Plugin.Config.GetFloat("Core", "Brightness", 1, true); };
             Brightness.SetValue += delegate (float value) { Plugin.Config.SetFloat("Core", "Brightness", value); };
              Brightness.FormatValue += delegate (float value) { return value.ToString(); };
 
-            var subMenuPresets = SettingsUI.CreateSubMenu("Color Settings");
+            var subMenuPresets = subMenuCC.AddSubMenu("Color Presets", "Adjust your Colors here!", true);
             float[] presetValues = new float[ColorPresets.Count];
             for (int i = 0; i < ColorPresets.Count; i++) presetValues[i] = i;
 
@@ -141,7 +142,7 @@ namespace CustomColors
             rainbowWallOverride.SetValue += delegate (bool value) { Plugin.Config.SetBool("Presets", "rainbowWalls", value); };
 
 
-            var subMenuUser = SettingsUI.CreateSubMenu("User Colors");
+            var subMenuUser = subMenuCC.AddSubMenu("User Preset Colors", "Adjust the values of the User Presets here!", true);
             var leftUser = subMenuUser.AddColorPicker("Left User Color Preset", "Left User Color Selection", Plugin.LeftUserColor);
             leftUser.GetValue += delegate { return Plugin.LeftUserColor; };
             leftUser.SetValue += delegate (Color value) 

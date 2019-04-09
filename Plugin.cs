@@ -13,7 +13,7 @@ namespace CustomColors
         public static BS_Utils.Utilities.Config Config = new BS_Utils.Utilities.Config("CustomColors");
 
         public const string Name = "CustomColorsEdit";
-        public const string Version = "1.11.4";
+        public const string Version = "1.12.0";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;
@@ -58,7 +58,7 @@ namespace CustomColors
         internal static bool safe = false;
 
         public static IEnumerable<Material> coreObstacleMaterials;
-        public static IEnumerable<Material> frameObstacleMaterials;
+        public static IEnumerable<ParametricBoxFrameController> frameObstacleMaterials;
 
 
         public void OnApplicationStart()
@@ -530,7 +530,7 @@ namespace CustomColors
 
                     coreObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleCore" || m.name == "ObstacleCoreInside");
 
-                    frameObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleFrame");
+                    frameObstacleMaterials = Resources.FindObjectsOfTypeAll<ParametricBoxFrameController>().ToList();
                     SetWallColors();
                 }
                 if (gameScene && rainbowWall)
@@ -634,7 +634,7 @@ namespace CustomColors
                     m.color = wallColor;
                     m.SetColor("_AddColor", (wallColor / 4f).ColorWithAlpha(0f));
                 }
-                foreach (Material m in frameObstacleMaterials)
+                foreach (ParametricBoxFrameController m in frameObstacleMaterials)
                 {
                     m.color = wallColor;
                 }
@@ -666,7 +666,7 @@ namespace CustomColors
                         m.color = CurrentWallColor;
                         m.SetColor("_AddColor", (CurrentWallColor / 4f).ColorWithAlpha(0f));
                     }
-                    foreach (Material m in frameObstacleMaterials)
+                    foreach (ParametricBoxFrameController m in frameObstacleMaterials)
                     {
                         m.color = CurrentWallColor;
                     }

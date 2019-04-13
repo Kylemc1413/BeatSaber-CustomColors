@@ -114,7 +114,7 @@
 
         public static Color GetRandomColor()
         {
-            if (UnityEngine.Random.Range(0f, 2f) >= 1)
+            if (UnityEngine.Random.value < 0.5f)
 
                 return GetLeftColor();
             else

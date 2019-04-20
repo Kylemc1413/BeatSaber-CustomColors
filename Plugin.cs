@@ -57,8 +57,9 @@ namespace CustomColors
         private static bool CustomSabersPresent;
         internal static bool safe = false;
 
-        public static IEnumerable<Material> coreObstacleMaterials;
-        public static IEnumerable<ParametricBoxFrameController> frameObstacleMaterials;
+        public static List<Material> wallCore;
+        public static List<ParametricBoxFrameController> wallFrame;
+     //   public static List<ParametricBoxFakeGlowController> wallFakeGlow;
 
 
         public void OnApplicationStart()
@@ -186,7 +187,7 @@ namespace CustomColors
                    Config.GetFloat("User Preset Colors", "Left User Preset B", 4, true) / 255f
                );
                 RightUserColor = new Color(
-                      Config.GetFloat("User Preset Colors", "Right User Preset R", 0, true) / 255f ,
+                      Config.GetFloat("User Preset Colors", "Right User Preset R", 0, true) / 255f,
                       Config.GetFloat("User Preset Colors", "Right User Preset G", 192, true) / 255f,
                       Config.GetFloat("User Preset Colors", "Right User Preset B", 255, true) / 255f
                   );
@@ -380,8 +381,8 @@ namespace CustomColors
 
         public void OnUpdate()
         {
-            if(safe)
-            ApplyColors();
+            if (safe)
+                ApplyColors();
 
 
         }
@@ -528,9 +529,9 @@ namespace CustomColors
                 if (Plugin.wallColorPreset != 0)
                 {
 
-                    coreObstacleMaterials = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleCore" || m.name == "ObstacleCoreInside");
-
-                    frameObstacleMaterials = Resources.FindObjectsOfTypeAll<ParametricBoxFrameController>().ToList();
+                    wallCore = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleCore" || m.name == "ObstacleCoreInside").ToList();
+                    wallFrame = Resources.FindObjectsOfTypeAll<ParametricBoxFrameController>().ToList();
+                //    wallFakeGlow = Resources.FindObjectsOfTypeAll<ParametricBoxFakeGlowController>().ToList();
                     SetWallColors();
                 }
                 if (gameScene && rainbowWall)
@@ -625,23 +626,36 @@ namespace CustomColors
 
         public static void SetWallColors()
         {
-
+            Log("Setting Wall Colors");
             wallColor = GetWallColor();
-            if (coreObstacleMaterials != null && frameObstacleMaterials != null)
+            foreach(Material core in wallCore)
             {
-                foreach (Material m in coreObstacleMaterials)
+                core.color = wallColor;
+                core.SetColor("_AddColor", (wallColor / 4f).ColorWithAlpha(0f));
+
+            }
+            foreach (ParametricBoxFrameController frame in wallFrame)
+            {
+                if (frame.isActiveAndEnabled)
                 {
-                    m.color = wallColor;
-                    m.SetColor("_AddColor", (wallColor / 4f).ColorWithAlpha(0f));
-                }
-                foreach (ParametricBoxFrameController m in frameObstacleMaterials)
-                {
-                    m.color = wallColor;
+                    frame.color = wallColor;
+                    frame.Refresh();
                 }
             }
-
-
+            /*
+            foreach (ParametricBoxFakeGlowController fakeGlow in wallFakeGlow)
+            {
+                if (fakeGlow.isActiveAndEnabled)
+                {
+                    fakeGlow.color = wallColor;
+                    fakeGlow.Refresh();
+                }
+            }
+            */
         }
+
+
+
 
 
         public static IEnumerator RainbowWalls()
@@ -658,26 +672,36 @@ namespace CustomColors
                 if (lerpControl < 1)
                     lerpControl += 0.08f / 1.25f;
                 CurrentWallColor = Color.Lerp(CurrentWallColor, wallColor, lerpControl);
-
-                if (coreObstacleMaterials != null && frameObstacleMaterials != null)
+       //         Log("Setting Wall Colors");
+                foreach (Material core in wallCore)
                 {
-                    foreach (Material m in coreObstacleMaterials)
+                    core.color = CurrentWallColor;
+                    core.SetColor("_AddColor", (CurrentWallColor / 4f).ColorWithAlpha(0f));
+
+                }
+                foreach (ParametricBoxFrameController frame in wallFrame)
+                {
+                    if (frame.isActiveAndEnabled)
                     {
-                        m.color = CurrentWallColor;
-                        m.SetColor("_AddColor", (CurrentWallColor / 4f).ColorWithAlpha(0f));
-                    }
-                    foreach (ParametricBoxFrameController m in frameObstacleMaterials)
-                    {
-                        m.color = CurrentWallColor;
+                        frame.color = CurrentWallColor;
+                        frame.Refresh();
                     }
                 }
-
+                /*
+                foreach (ParametricBoxFakeGlowController fakeGlow in wallFakeGlow)
+                {
+                    if (fakeGlow.isActiveAndEnabled)
+                    {
+                        fakeGlow.color = CurrentWallColor;
+                        fakeGlow.Refresh();
+                    }
+                }
+                */
+                SharedCoroutineStarter.instance.StartCoroutine(RainbowWalls());
             }
-            SharedCoroutineStarter.instance.StartCoroutine(RainbowWalls());
-
-
-
         }
+
+
         public static void Log(string message)
         {
             Console.WriteLine("[{0}] {1}", Name, message);

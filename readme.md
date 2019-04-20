@@ -1,6 +1,6 @@
 #### Allows you to customize your colors in Beat Saber
 #### Requires BeatSaberCustomUI
-### Colors can be changed in game in the settings menu, specifically the color settings tab. All the different settings are described below
+### Colors can be changed in game in the settings menu, specifically the color presets tab. All the different settings are described below
 
 #### Changelog 1.11.2
 - Hopefully fixed lighting breaking after applying settings

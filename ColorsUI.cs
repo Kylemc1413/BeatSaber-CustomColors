@@ -136,6 +136,34 @@ namespace CustomColors
             rightLightPreset.SetValue += delegate (float value) { Plugin.Config.SetInt("Presets", "rightLightPreset", (int)value); };
             rightLightPreset.FormatValue += delegate (float value) { return OtherPresets[(int)value].Item2; };
 
+
+
+            var subMenuArrowPresets = subMenuCC.AddSubMenu("Arrow Color Presets", "Adjust Note Arrow Colors here!", true);
+            //Left Arrow Glow Color Preset
+            var leftArrowGlowPreset = subMenuArrowPresets.AddList("Left Arrow Glow Color Preset", otherPresetValues);
+            leftArrowGlowPreset.GetValue += delegate { return Plugin.Config.GetInt("Presets", "leftArrowGlowPreset", 0, true); };
+            leftArrowGlowPreset.SetValue += delegate (float value) { Plugin.Config.SetInt("Presets", "leftArrowGlowPreset", (int)value); };
+            leftArrowGlowPreset.FormatValue += delegate (float value) { return OtherPresets[(int)value].Item2; };
+            //Right  Arrow Glow Color Preset
+            var rightArrowGlowPreset = subMenuArrowPresets.AddList("Right Arrow Glow Color Preset", otherPresetValues);
+            rightArrowGlowPreset.GetValue += delegate { return Plugin.Config.GetInt("Presets", "rightArrowGlowPreset", 0, true); };
+            rightArrowGlowPreset.SetValue += delegate (float value) { Plugin.Config.SetInt("Presets", "rightArrowGlowPreset", (int)value); };
+            rightArrowGlowPreset.FormatValue += delegate (float value) { return OtherPresets[(int)value].Item2; };
+            //Left  Arrow  Color Preset
+            var leftArrowPreset = subMenuArrowPresets.AddList("Left Arrow Color Preset", otherPresetValues);
+            leftArrowPreset.GetValue += delegate { return Plugin.Config.GetInt("Presets", "leftArrowPreset", 0, true); };
+            leftArrowPreset.SetValue += delegate (float value) { Plugin.Config.SetInt("Presets", "leftArrowPreset", (int)value); };
+            leftArrowPreset.FormatValue += delegate (float value) { return OtherPresets[(int)value].Item2; };
+            //Right  Arrow Color Preset
+            var rightArrowPreset = subMenuArrowPresets.AddList("Right Arrow Color Preset", otherPresetValues);
+            rightArrowPreset.GetValue += delegate { return Plugin.Config.GetInt("Presets", "rightArrowPreset", 0, true); };
+            rightArrowPreset.SetValue += delegate (float value) { Plugin.Config.SetInt("Presets", "rightArrowPreset", (int)value); };
+            rightArrowPreset.FormatValue += delegate (float value) { return OtherPresets[(int)value].Item2; };
+
+
+
+
+
             //Rainbow Walls
             var rainbowWallOverride = subMenuPresets.AddBool("Rainbow Wall Override");
             rainbowWallOverride.GetValue += delegate { return Plugin.Config.GetBool("Presets", "rainbowWalls", false, true); };

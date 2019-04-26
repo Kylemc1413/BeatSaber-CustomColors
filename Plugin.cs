@@ -6,14 +6,16 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Harmony;
+using System.Reflection;
 namespace CustomColors
 {
     public class Plugin : IPlugin
     {
         public static BS_Utils.Utilities.Config Config = new BS_Utils.Utilities.Config("CustomColors");
 
-        public const string Name = "CustomColorsEdit";
-        public const string Version = "1.12.0";
+        public const string Name = "Custom Colors";
+        public const string Version = "1.13.1";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;
@@ -25,6 +27,11 @@ namespace CustomColors
         public static Color LeftUserColor;
         public static Color RightUserColor;
 
+        public static Color LeftArrowColor;
+        public static Color RightArrowColor;
+        public static Color LeftArrowGlowColor;
+        public static Color RightArrowGlowColor;
+
         public static Color CurrentWallColor;
         public static Color wallColor;
         public static bool _overrideCustomSabers = true;
@@ -33,6 +40,12 @@ namespace CustomColors
         public static int wallColorPreset = 0;
         public static int leftLightPreset = 0;
         public static int rightLightPreset = 0;
+
+        public static int leftArrowPreset = 0;
+        public static int rightArrowPreset = 0;
+        public static int leftArrowGlowPreset = 0;
+        public static int rightArrowGlowPreset = 0;
+
         public static int userIncrement;
         public static bool disablePlugin = false;
         public static bool queuedDisable = false;
@@ -68,10 +81,11 @@ namespace CustomColors
             ColorsUI.CheckCT();
             _colorInit = false;
 
-            CustomSabersPresent = IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "Saber Mod");
+            CustomSabersPresent = IllusionInjector.PluginManager.Plugins.Any(x => x.Name == "Custom Sabers") || IPA.Loader.PluginManager.AllPlugins.Any(x => x.Metadata.Id == "Custom Sabers");
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
             SceneManager.sceneLoaded += SceneManager_sceneLoaded;
-
+            var harmony = HarmonyInstance.Create("CustomColorsHarmonyInstance");
+            harmony.PatchAll(Assembly.GetExecutingAssembly());
 
         }
 
@@ -171,6 +185,12 @@ namespace CustomColors
                 leftLightPreset = Config.GetInt("Presets", "leftLightPreset", 1, true);
                 rightLightPreset = Config.GetInt("Presets", "rightLightPreset", 2, true);
 
+                leftArrowPreset = Config.GetInt("Presets", "leftArrowPreset", 0, true);
+                rightArrowPreset = Config.GetInt("Presets", "rightArrowPreset", 0, true);
+                leftArrowGlowPreset = Config.GetInt("Presets", "leftArrowGlowPreset", 0, true);
+                rightArrowGlowPreset = Config.GetInt("Presets", "rightArrowGlowPreset", 0, true);
+
+
                 brightness = Config.GetFloat("Core", "Brightness", 1, true);
                 rainbowWall = Config.GetBool("Presets", "rainbowWalls", false, true);
                 //Make sure preset exists, else default to user
@@ -179,6 +199,10 @@ namespace CustomColors
                 if (leftLightPreset > ColorsUI.OtherPresets.Count) leftLightPreset = 0;
                 if (rightLightPreset > ColorsUI.OtherPresets.Count) rightLightPreset = 0;
                 if (wallColorPreset > ColorsUI.OtherPresets.Count) wallColorPreset = 0;
+                if (leftArrowGlowPreset > ColorsUI.OtherPresets.Count) leftArrowGlowPreset = 0;
+                if (rightArrowGlowPreset > ColorsUI.OtherPresets.Count) rightArrowGlowPreset = 0;
+                if (rightArrowPreset > ColorsUI.OtherPresets.Count) rightArrowPreset = 0;
+                if (leftArrowPreset > ColorsUI.OtherPresets.Count) leftArrowPreset = 0;
 
                 //If preset is user get config values for colors, otherwise use preset
                 LeftUserColor = new Color(
@@ -260,12 +284,112 @@ namespace CustomColors
                         break;
 
                 }
+                SetArrowColors();
+
+
+
+
                 ColorLeftLight *= brightness;
                 ColorRightLight *= brightness;
                 GetWallColor();
 
             }
             CCSettingsChanged?.Invoke();
+        }
+
+        internal void SetArrowColors()
+        {
+            switch (leftArrowPreset)
+            {
+                case 0:
+                    LeftArrowColor = new Color(1, 4 / 255f, 4 / 255f);
+                    break;
+                case 1:
+                    LeftArrowColor = ColorLeft;
+                    break;
+                case 2:
+                    LeftArrowColor = ColorRight;
+                    break;
+                case 3:
+                    LeftArrowColor = LeftUserColor;
+                    break;
+                case 4:
+                    LeftArrowColor = RightUserColor;
+                    break;
+                default:
+                    LeftArrowColor = ColorsUI.OtherPresets[leftArrowPreset].Item1;
+                    break;
+
+
+            }
+            switch (leftArrowGlowPreset)
+            {
+                case 0:
+                    LeftArrowGlowColor = new Color(1, 4 / 255f, 4 / 255f);
+                    break;
+                case 1:
+                    LeftArrowGlowColor = ColorLeft;
+                    break;
+                case 2:
+                    LeftArrowGlowColor = ColorRight;
+                    break;
+                case 3:
+                    LeftArrowGlowColor = LeftUserColor;
+                    break;
+                case 4:
+                    LeftArrowGlowColor = RightUserColor;
+                    break;
+                default:
+                    LeftArrowGlowColor = ColorsUI.OtherPresets[leftArrowGlowPreset].Item1;
+                    break;
+
+
+            }
+            switch (rightArrowPreset)
+            {
+                case 0:
+                    RightArrowColor = new Color(1, 4 / 255f, 4 / 255f);
+                    break;
+                case 1:
+                    RightArrowColor = ColorLeft;
+                    break;
+                case 2:
+                    RightArrowColor = ColorRight;
+                    break;
+                case 3:
+                    RightArrowColor = LeftUserColor;
+                    break;
+                case 4:
+                    RightArrowColor = RightUserColor;
+                    break;
+                default:
+                    RightArrowColor = ColorsUI.OtherPresets[rightArrowPreset].Item1;
+                    break;
+
+
+            }
+            switch (rightArrowGlowPreset)
+            {
+                case 0:
+                    RightArrowGlowColor = new Color(1, 4 / 255f, 4 / 255f);
+                    break;
+                case 1:
+                    RightArrowGlowColor = ColorLeft;
+                    break;
+                case 2:
+                    RightArrowGlowColor = ColorRight;
+                    break;
+                case 3:
+                    RightArrowGlowColor = LeftUserColor;
+                    break;
+                case 4:
+                    RightArrowGlowColor = RightUserColor;
+                    break;
+                default:
+                    RightArrowGlowColor = ColorsUI.OtherPresets[rightArrowGlowPreset].Item1;
+                    break;
+
+            }
         }
 
         void GetObjects()
@@ -528,11 +652,8 @@ namespace CustomColors
 
                 if (Plugin.wallColorPreset != 0)
                 {
+                    SharedCoroutineStarter.instance.StartCoroutine(WallPrep());
 
-                    wallCore = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleCore" || m.name == "ObstacleCoreInside").ToList();
-                    wallFrame = Resources.FindObjectsOfTypeAll<ParametricBoxFrameController>().ToList();
-                //    wallFakeGlow = Resources.FindObjectsOfTypeAll<ParametricBoxFakeGlowController>().ToList();
-                    SetWallColors();
                 }
                 if (gameScene && rainbowWall)
                     SharedCoroutineStarter.instance.StartCoroutine(RainbowWalls());
@@ -593,6 +714,16 @@ namespace CustomColors
             }
 
         }
+
+
+        public IEnumerator WallPrep()
+        {
+            yield return new WaitForSecondsRealtime(0f);
+            wallCore = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleCore" || m.name == "ObstacleCoreInside").ToList();
+            wallFrame = Resources.FindObjectsOfTypeAll<ParametricBoxFrameController>().ToList();
+            //    wallFakeGlow = Resources.FindObjectsOfTypeAll<ParametricBoxFakeGlowController>().ToList();
+            SetWallColors();
+        }
         public IEnumerator SetLogoColors()
         {
             yield return new WaitForSeconds(0.2f);
@@ -636,11 +767,9 @@ namespace CustomColors
             }
             foreach (ParametricBoxFrameController frame in wallFrame)
             {
-                if (frame.isActiveAndEnabled)
-                {
-                    frame.color = wallColor;
+             //   Log("WallFrame");
+                    frame.color = CurrentWallColor;
                     frame.Refresh();
-                }
             }
             /*
             foreach (ParametricBoxFakeGlowController fakeGlow in wallFakeGlow)
@@ -681,11 +810,9 @@ namespace CustomColors
                 }
                 foreach (ParametricBoxFrameController frame in wallFrame)
                 {
-                    if (frame.isActiveAndEnabled)
-                    {
-                        frame.color = CurrentWallColor;
+               //     Log("WallFrame");
+                       frame.color = CurrentWallColor;
                         frame.Refresh();
-                    }
                 }
                 /*
                 foreach (ParametricBoxFakeGlowController fakeGlow in wallFakeGlow)

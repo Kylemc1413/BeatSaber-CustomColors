@@ -15,7 +15,7 @@ namespace CustomColors
         public static BS_Utils.Utilities.Config Config = new BS_Utils.Utilities.Config("CustomColors");
 
         public const string Name = "Custom Colors";
-        public const string Version = "1.13.1";
+        public const string Version = "1.14.0";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;
@@ -55,6 +55,9 @@ namespace CustomColors
         public const int Min = 0;
         public static float brightness = 1f;
         public static bool rainbowWall = false;
+        public static bool dotArrowFix = false;
+        public static bool disableArrowChanges = false;
+
         public static float lerpControl = 0;
         public static bool gameScene = false;
         string IPlugin.Name => Name;
@@ -189,7 +192,8 @@ namespace CustomColors
                 rightArrowPreset = Config.GetInt("Presets", "rightArrowPreset", 0, true);
                 leftArrowGlowPreset = Config.GetInt("Presets", "leftArrowGlowPreset", 0, true);
                 rightArrowGlowPreset = Config.GetInt("Presets", "rightArrowGlowPreset", 0, true);
-
+                dotArrowFix = Config.GetBool("Core", "dotArrowFix", false, true);
+                disableArrowChanges = Config.GetBool("Core", "disableArrowChanges", false, true);
 
                 brightness = Config.GetFloat("Core", "Brightness", 1, true);
                 rainbowWall = Config.GetBool("Presets", "rainbowWalls", false, true);

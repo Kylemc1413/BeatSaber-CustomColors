@@ -139,6 +139,10 @@ namespace CustomColors
 
 
             var subMenuArrowPresets = subMenuCC.AddSubMenu("Arrow Color Presets", "Adjust Note Arrow Colors here!", true);
+            var disableArrowChangesOption = subMenuArrowPresets.AddBool("Disable Arrow Changes");
+            disableArrowChangesOption.GetValue += delegate { return Plugin.Config.GetBool("Core", "disableArrowChanges", false, true); };
+            disableArrowChangesOption.SetValue += delegate (bool value) { Plugin.Config.SetBool("Core", "disableArrowChanges", value); };
+
             //Left Arrow Glow Color Preset
             var leftArrowGlowPreset = subMenuArrowPresets.AddList("Left Arrow Glow Color Preset", otherPresetValues);
             leftArrowGlowPreset.GetValue += delegate { return Plugin.Config.GetInt("Presets", "leftArrowGlowPreset", 0, true); };
@@ -160,6 +164,9 @@ namespace CustomColors
             rightArrowPreset.SetValue += delegate (float value) { Plugin.Config.SetInt("Presets", "rightArrowPreset", (int)value); };
             rightArrowPreset.FormatValue += delegate (float value) { return OtherPresets[(int)value].Item2; };
 
+            var dotArrowFixOption = subMenuArrowPresets.AddBool("Dot Arrow \"Fix\"", "Changing the Base Arrow Color of dots does not work currently, so this option will change the color of dot notes to match their arrow color if the arrow color is set to a non default preset");
+            dotArrowFixOption.GetValue += delegate { return Plugin.Config.GetBool("Core", "dotArrowFix", false, true); };
+            dotArrowFixOption.SetValue += delegate (bool value) { Plugin.Config.SetBool("Core", "dotArrowFix", value); };
 
 
 

@@ -13,7 +13,7 @@ namespace CustomColors.HarmonyPatches
     {
         public static void Postfix(NoteController noteController, ref MeshRenderer ____arrowMeshRenderer, ref SpriteRenderer ____arrowGlowSpriteRenderer, ref SpriteRenderer ____circleGlowSpriteRenderer, ref float ____arrowGlowIntensity, ref MaterialPropertyBlockController[] ____materialPropertyBlockControllers, ref int ____colorID)
         {
-            if (Plugin.disablePlugin)
+            if (Plugin.disablePlugin || Plugin.disableArrowChanges)
                 return;
             if (noteController.noteData.noteType == NoteType.NoteA)
             {
@@ -27,7 +27,7 @@ namespace CustomColors.HarmonyPatches
                 {
                     ____arrowMeshRenderer.material.color = Plugin.LeftArrowColor;//.ColorWithAlpha(____arrowGlowIntensity);
 
-                    if (noteController.noteData.cutDirection == NoteCutDirection.Any)
+                    if (noteController.noteData.cutDirection == NoteCutDirection.Any && Plugin.dotArrowFix)
                     {
                         foreach (MaterialPropertyBlockController materialPropertyBlockController in ____materialPropertyBlockControllers)
                         {
@@ -52,7 +52,7 @@ namespace CustomColors.HarmonyPatches
                 {
                     ____arrowMeshRenderer.material.color = Plugin.RightArrowColor;//.ColorWithAlpha(____arrowGlowIntensity);
 
-                    if (noteController.noteData.cutDirection == NoteCutDirection.Any)
+                    if (noteController.noteData.cutDirection == NoteCutDirection.Any && Plugin.dotArrowFix)
                     {
                         foreach (MaterialPropertyBlockController materialPropertyBlockController in ____materialPropertyBlockControllers)
                         {

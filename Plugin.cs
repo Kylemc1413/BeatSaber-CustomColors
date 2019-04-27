@@ -15,7 +15,7 @@ namespace CustomColors
         public static BS_Utils.Utilities.Config Config = new BS_Utils.Utilities.Config("CustomColors");
 
         public const string Name = "Custom Colors";
-        public const string Version = "1.14.0";
+        public const string Version = "1.14.1";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;
@@ -75,7 +75,7 @@ namespace CustomColors
 
         public static List<Material> wallCore;
         public static List<ParametricBoxFrameController> wallFrame;
-     //   public static List<ParametricBoxFakeGlowController> wallFakeGlow;
+        public static List<ParametricBoxFakeGlowController> wallFakeGlow;
 
 
         public void OnApplicationStart()
@@ -725,7 +725,7 @@ namespace CustomColors
             yield return new WaitForSecondsRealtime(0f);
             wallCore = Resources.FindObjectsOfTypeAll<Material>().Where(m => m.name == "ObstacleCore" || m.name == "ObstacleCoreInside").ToList();
             wallFrame = Resources.FindObjectsOfTypeAll<ParametricBoxFrameController>().ToList();
-            //    wallFakeGlow = Resources.FindObjectsOfTypeAll<ParametricBoxFakeGlowController>().ToList();
+  //          wallFakeGlow = Resources.FindObjectsOfTypeAll<ParametricBoxFakeGlowController>().ToList();
             SetWallColors();
         }
         public IEnumerator SetLogoColors()
@@ -772,7 +772,7 @@ namespace CustomColors
             foreach (ParametricBoxFrameController frame in wallFrame)
             {
              //   Log("WallFrame");
-                    frame.color = CurrentWallColor;
+                    frame.color = wallColor;
                     frame.Refresh();
             }
             /*

@@ -15,7 +15,7 @@ namespace CustomColors
         public static BS_Utils.Utilities.Config Config = new BS_Utils.Utilities.Config("CustomColors");
 
         public const string Name = "Custom Colors";
-        public const string Version = "1.14.1";
+        public const string Version = "1.14.2";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;

@@ -19,8 +19,8 @@ namespace CustomColors.HarmonyPatches
             {
                 if (Plugin.leftArrowGlowPreset != 0)
                 {
-                    ____arrowGlowSpriteRenderer.color = Plugin.LeftArrowGlowColor;//.ColorWithAlpha(____arrowGlowIntensity);
-                    ____circleGlowSpriteRenderer.color = Plugin.LeftArrowGlowColor;//.ColorWithAlpha(____arrowGlowIntensity);
+                    ____arrowGlowSpriteRenderer.color = Plugin.LeftArrowGlowColor.ColorWithAlpha(____arrowGlowIntensity);
+                    ____circleGlowSpriteRenderer.color = Plugin.LeftArrowGlowColor.ColorWithAlpha(____arrowGlowIntensity);
                 }
 
                 if (Plugin.leftArrowPreset != 0)
@@ -45,8 +45,8 @@ namespace CustomColors.HarmonyPatches
             {
                 if (Plugin.rightArrowGlowPreset != 0)
                 {
-                    ____arrowGlowSpriteRenderer.color = Plugin.RightArrowGlowColor;//.ColorWithAlpha(____arrowGlowIntensity);
-                    ____circleGlowSpriteRenderer.color = Plugin.RightArrowGlowColor;//.ColorWithAlpha(____arrowGlowIntensity);
+                    ____arrowGlowSpriteRenderer.color = Plugin.RightArrowGlowColor.ColorWithAlpha(____arrowGlowIntensity);
+                    ____circleGlowSpriteRenderer.color = Plugin.RightArrowGlowColor.ColorWithAlpha(____arrowGlowIntensity);
                 }
                 if (Plugin.rightArrowPreset != 0)
                 {

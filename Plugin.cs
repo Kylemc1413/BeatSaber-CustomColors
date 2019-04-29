@@ -34,10 +34,12 @@ namespace CustomColors
 
         public static Color CurrentWallColor;
         public static Color wallColor;
+        public static Color wallFrameColor;
         public static bool _overrideCustomSabers = true;
         public static int leftColorPreset = 0;
         public static int rightColorPreset = 0;
         public static int wallColorPreset = 0;
+        public static int wallFrameColorPreset = 0;
         public static int leftLightPreset = 0;
         public static int rightLightPreset = 0;
 
@@ -178,6 +180,7 @@ namespace CustomColors
                 ColorLeftLight = new Color(1, 4 / 255f, 4 / 255f);
                 ColorRightLight = new Color(0, 192 / 255f, 1);
                 wallColorPreset = 0;
+                wallFrameColorPreset = 0;
             }
 
             if (disablePlugin == false)
@@ -185,6 +188,7 @@ namespace CustomColors
                 leftColorPreset = Config.GetInt("Presets", "leftNoteColorPreset", 0, true);
                 rightColorPreset = Config.GetInt("Presets", "rightNoteColorPreset", 0, true);
                 wallColorPreset = Config.GetInt("Presets", "wallColorPreset", 0, true);
+                wallFrameColorPreset = Config.GetInt("Presets", "wallFrameColorPreset", 0, true);
                 leftLightPreset = Config.GetInt("Presets", "leftLightPreset", 1, true);
                 rightLightPreset = Config.GetInt("Presets", "rightLightPreset", 2, true);
 
@@ -203,6 +207,7 @@ namespace CustomColors
                 if (leftLightPreset > ColorsUI.OtherPresets.Count) leftLightPreset = 0;
                 if (rightLightPreset > ColorsUI.OtherPresets.Count) rightLightPreset = 0;
                 if (wallColorPreset > ColorsUI.OtherPresets.Count) wallColorPreset = 0;
+                if (wallFrameColorPreset > ColorsUI.OtherPresets.Count) wallFrameColorPreset = 0;
                 if (leftArrowGlowPreset > ColorsUI.OtherPresets.Count) leftArrowGlowPreset = 0;
                 if (rightArrowGlowPreset > ColorsUI.OtherPresets.Count) rightArrowGlowPreset = 0;
                 if (rightArrowPreset > ColorsUI.OtherPresets.Count) rightArrowPreset = 0;
@@ -290,12 +295,8 @@ namespace CustomColors
                 }
                 SetArrowColors();
 
-
-
-
                 ColorLeftLight *= brightness;
                 ColorRightLight *= brightness;
-                GetWallColor();
 
             }
             CCSettingsChanged?.Invoke();
@@ -515,21 +516,21 @@ namespace CustomColors
 
         }
 
-        private static Color GetWallColor()
+        private static Color GetWallColor(int preset)
         {
             Color col;
             if (!Plugin.rainbowWall)
             {
-                if (Plugin.wallColorPreset == 1)
+                if (preset == 1)
                     col = Plugin.ColorLeft;
-                else if (Plugin.wallColorPreset == 2)
+                else if (preset == 2)
                     col = Plugin.ColorRight;
-                else if (Plugin.wallColorPreset == 3)
+                else if (preset == 3)
                     col = LeftUserColor;
-                else if (Plugin.wallColorPreset == 4)
+                else if (preset == 4)
                     col = RightUserColor;
                 else
-                    col = ColorsUI.OtherPresets[Plugin.wallColorPreset].Item1;
+                    col = ColorsUI.OtherPresets[preset].Item1;
             }
             else
             {
@@ -762,8 +763,9 @@ namespace CustomColors
         public static void SetWallColors()
         {
             Log("Setting Wall Colors");
-            wallColor = GetWallColor();
-            foreach(Material core in wallCore)
+            wallColor = GetWallColor(wallColorPreset);
+            wallFrameColor = GetWallColor(wallFrameColorPreset);
+            foreach (Material core in wallCore)
             {
                 core.color = wallColor;
                 core.SetColor("_AddColor", (wallColor / 4f).ColorWithAlpha(0f));
@@ -771,8 +773,7 @@ namespace CustomColors
             }
             foreach (ParametricBoxFrameController frame in wallFrame)
             {
-             //   Log("WallFrame");
-                    frame.color = wallColor;
+                    frame.color = wallFrameColorPreset == 0? wallColor : wallFrameColor;
                     frame.Refresh();
             }
             /*
@@ -799,7 +800,7 @@ namespace CustomColors
             {
                 if (CurrentWallColor == wallColor)
                 {
-                    wallColor = GetWallColor();
+                    wallColor = GetWallColor(wallColorPreset);
                     lerpControl = 0;
                 }
                 if (lerpControl < 1)

@@ -125,6 +125,13 @@ namespace CustomColors
             customColoredWalls.SetValue += delegate (float value) { Plugin.Config.SetInt("Presets", "wallColorPreset", (int)value); };
             customColoredWalls.FormatValue += delegate (float value) { return OtherPresets[(int)value].Item2; };
 
+            //Wall frame preset
+            var customWallFrameColor = subMenuPresets.AddList("Wall Frame Color", otherPresetValues);
+            customWallFrameColor.GetValue += delegate { return Plugin.Config.GetInt("Presets", "wallFrameColorPreset", 0, true); };
+            customWallFrameColor.SetValue += delegate (float value) { Plugin.Config.SetInt("Presets", "wallFrameColorPreset", (int)value); };
+            customWallFrameColor.FormatValue += delegate (float value) { return OtherPresets[(int)value].Item2; };
+
+
             //Left Light Preset
             var leftLightPreset = subMenuPresets.AddList("Left Light Preset", otherPresetValues);
             leftLightPreset.GetValue += delegate { return Plugin.Config.GetInt("Presets", "leftLightPreset", 0, true); };

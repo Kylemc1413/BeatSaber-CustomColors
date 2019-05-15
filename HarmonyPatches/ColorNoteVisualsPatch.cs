@@ -7,9 +7,9 @@ using Harmony;
 using UnityEngine;
 namespace CustomColors.HarmonyPatches
 {
-
+    
     [HarmonyPatch(typeof(ColorNoteVisuals), "HandleNoteControllerDidInitEvent")]
-    class ColorNoteVisualsPatch
+    internal class ColorNoteVisualsPatch
     {
         public static void Postfix(NoteController noteController, ref MeshRenderer ____arrowMeshRenderer, ref SpriteRenderer ____arrowGlowSpriteRenderer, ref SpriteRenderer ____circleGlowSpriteRenderer, ref float ____arrowGlowIntensity, ref MaterialPropertyBlockController[] ____materialPropertyBlockControllers, ref int ____colorID)
         {
@@ -26,7 +26,6 @@ namespace CustomColors.HarmonyPatches
                 if (Plugin.leftArrowPreset != 0)
                 {
                     ____arrowMeshRenderer.material.color = Plugin.LeftArrowColor;//.ColorWithAlpha(____arrowGlowIntensity);
-
                     if (noteController.noteData.cutDirection == NoteCutDirection.Any && Plugin.dotArrowFix)
                     {
                         foreach (MaterialPropertyBlockController materialPropertyBlockController in ____materialPropertyBlockControllers)
@@ -37,8 +36,6 @@ namespace CustomColors.HarmonyPatches
                         }
                     }
                 }
-
-
 
             }
             else if (noteController.noteData.noteType == NoteType.NoteB)
@@ -64,14 +61,29 @@ namespace CustomColors.HarmonyPatches
                 }
              
 
-
             }
-
-
-
-
-
 
         }
     }
+    /*
+    [HarmonyPatch(typeof(BombNoteController), "Init")]
+    class BombInitPatch
+    {
+        public static Material noteMat = null;
+        public static void Postfix(NoteData noteData,
+            Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float moveDuration, float jumpDuration, float startTime, float jumpGravity, ref GameObject ____wrapperGO)
+        {
+            if(noteMat == null)
+            {
+                 noteMat = Resources.FindObjectsOfTypeAll<ColorNoteVisuals>().First().GetPrivateField<MaterialPropertyBlockController[]>("_materialPropertyBlockControllers")[0].GetPrivateField<Renderer[]>("_renderers").First(x => x.sharedMaterial != null).sharedMaterial;
+           // testMat = materialPropertyBlockController.GetPrivateField<Renderer[]>("_renderers").First(x => x.sharedMaterial != null).sharedMaterial;
+            }
+            if (noteMat != null)
+            {
+                ____wrapperGO.GetComponent<MeshRenderer>().sharedMaterial = noteMat;
+                ____wrapperGO.GetComponent<MeshRenderer>().sharedMaterial.color = Color.cyan;
+            }
+        }
+    }
+    */
 }

@@ -150,6 +150,10 @@ namespace CustomColors
             disableArrowChangesOption.GetValue += delegate { return Plugin.Config.GetBool("Core", "disableArrowChanges", false, true); };
             disableArrowChangesOption.SetValue += delegate (bool value) { Plugin.Config.SetBool("Core", "disableArrowChanges", value); };
 
+            var useArrowColorForSabersOption = subMenuArrowPresets.AddBool("Use Arrow Color for Saber Overrides");
+            useArrowColorForSabersOption.GetValue += delegate { return Plugin.Config.GetBool("Core", "useArrowColorsForSabers", false, true); };
+            useArrowColorForSabersOption.SetValue += delegate (bool value) { Plugin.Config.SetBool("Core", "useArrowColorsForSabers", value); };
+
             //Left Arrow Glow Color Preset
             var leftArrowGlowPreset = subMenuArrowPresets.AddList("Left Arrow Glow Color Preset", otherPresetValues);
             leftArrowGlowPreset.GetValue += delegate { return Plugin.Config.GetInt("Presets", "leftArrowGlowPreset", 0, true); };

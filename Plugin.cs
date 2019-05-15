@@ -15,7 +15,7 @@ namespace CustomColors
         public static BS_Utils.Utilities.Config Config = new BS_Utils.Utilities.Config("CustomColors");
 
         public const string Name = "Custom Colors";
-        public const string Version = "1.14.2";
+        public const string Version = "1.14.3";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;
@@ -59,7 +59,7 @@ namespace CustomColors
         public static bool rainbowWall = false;
         public static bool dotArrowFix = false;
         public static bool disableArrowChanges = false;
-
+        public static bool useArrowColorsForSabers = false;
         public static float lerpControl = 0;
         public static bool gameScene = false;
         string IPlugin.Name => Name;
@@ -161,6 +161,7 @@ namespace CustomColors
         void ReadPreferences()
         {
             _overrideCustomSabers = Config.GetBool("Core", "OverrideCustomSabers", true, true);
+            useArrowColorsForSabers = Config.GetBool("Core", "useArrowColorsForSabers", false, true);
             allowEnvironmentColors = Config.GetBool("Core", "allowEnvironmentColors", true, true);
             disablePlugin = Config.GetBool("Core", "disablePlugin", false, true) || ctInstalled;
             if (disablePlugin) queuedDisable = true;
@@ -414,6 +415,8 @@ namespace CustomColors
 
         void EnsureCustomSabersOverridden()
         {
+            Color Left = (useArrowColorsForSabers && !disableArrowChanges) ? LeftArrowColor : ColorLeft;
+            Color Right = (useArrowColorsForSabers && !disableArrowChanges) ? RightArrowColor : ColorRight;
             if (!CustomSabersPresent)
             {
                 if (SceneManager.GetActiveScene().name != "GameCore") return;
@@ -427,12 +430,12 @@ namespace CustomColors
             {
                 if (disablePlugin) return;
                 //          Log("Attempting Override of Custom Sabers");
-                _customsInit = OverrideSaber("LeftSaber", ColorLeft) || OverrideSaber("RightSaber", ColorRight);
+                _customsInit = OverrideSaber("LeftSaber", Left) || OverrideSaber("RightSaber", Right);
                 if (_customsInit)
                 {
                     //Reoverride attempt both once one attempt succeeds, to try and account for one saber cases, etc
-                    OverrideSaber("LeftSaber", ColorLeft);
-                    OverrideSaber("RightSaber", ColorRight);
+                    OverrideSaber("LeftSaber", Left);
+                    OverrideSaber("RightSaber", Right);
                 }
             }
             else
@@ -572,7 +575,7 @@ namespace CustomColors
                 {
                     if (scriptableColor != null)
                     {
-                        //         Log(scriptableColor.name);
+                    //             Log(scriptableColor.name);
                         //     Log(scriptableColor.color.ToString());
                         /*
                         if (scriptableColor.name == "Color Red" || scriptableColor.name == "BaseColor1")
@@ -592,7 +595,7 @@ namespace CustomColors
                             scriptableColor.SetColor(ColorLeft);
                         else if (scriptableColor.name == "BaseColor1")
                             scriptableColor.SetColor(ColorLeftLight);
-                        else if (scriptableColor.name == "MenuEnvLight0")
+                        else if (scriptableColor.name == "MenuEnvLight3")
                             scriptableColor.SetColor(ColorRightLight);
                         else if (scriptableColor.name == "MenuEnvLight1")
                             scriptableColor.SetColor(ColorRightLight);
@@ -732,6 +735,7 @@ namespace CustomColors
         public IEnumerator SetLogoColors()
         {
             yield return new WaitForSeconds(0.2f);
+            if(GameObject.Find("Logo") != null)
             foreach (Transform t in GameObject.Find("Logo").transform)
             {
                 Log($"Transform: {t.name}");

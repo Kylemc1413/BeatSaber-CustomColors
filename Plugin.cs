@@ -15,7 +15,7 @@ namespace CustomColors
         public static BS_Utils.Utilities.Config Config = new BS_Utils.Utilities.Config("CustomColors");
 
         public const string Name = "Custom Colors";
-        public const string Version = "1.14.3";
+        public const string Version = "1.15.1";
         public delegate void ColorsApplied();
         public delegate void SettingsChanged();
         public static event SettingsChanged CCSettingsChanged;
@@ -26,6 +26,7 @@ namespace CustomColors
         public static Color ColorRightLight = new Color(0, 0, 1);
         public static Color LeftUserColor;
         public static Color RightUserColor;
+        public static Color bombColor;
 
         public static Color LeftArrowColor;
         public static Color RightArrowColor;
@@ -42,6 +43,8 @@ namespace CustomColors
         public static int wallFrameColorPreset = 0;
         public static int leftLightPreset = 0;
         public static int rightLightPreset = 0;
+        public static int bombColorPreset = 0;
+
 
         public static int leftArrowPreset = 0;
         public static int rightArrowPreset = 0;
@@ -192,6 +195,7 @@ namespace CustomColors
                 wallFrameColorPreset = Config.GetInt("Presets", "wallFrameColorPreset", 0, true);
                 leftLightPreset = Config.GetInt("Presets", "leftLightPreset", 1, true);
                 rightLightPreset = Config.GetInt("Presets", "rightLightPreset", 2, true);
+                bombColorPreset = Config.GetInt("Presets", "bombColorPreset", 0, true);
 
                 leftArrowPreset = Config.GetInt("Presets", "leftArrowPreset", 0, true);
                 rightArrowPreset = Config.GetInt("Presets", "rightArrowPreset", 0, true);
@@ -213,7 +217,7 @@ namespace CustomColors
                 if (rightArrowGlowPreset > ColorsUI.OtherPresets.Count) rightArrowGlowPreset = 0;
                 if (rightArrowPreset > ColorsUI.OtherPresets.Count) rightArrowPreset = 0;
                 if (leftArrowPreset > ColorsUI.OtherPresets.Count) leftArrowPreset = 0;
-
+                if (bombColorPreset > ColorsUI.OtherPresets.Count) bombColorPreset = 0;
                 //If preset is user get config values for colors, otherwise use preset
                 LeftUserColor = new Color(
                    Config.GetFloat("User Preset Colors", "Left User Preset R", 255, true) / 255f,
@@ -294,6 +298,29 @@ namespace CustomColors
                         break;
 
                 }
+                switch (bombColorPreset)
+                {
+                    case 0:
+                        bombColor = new Color(0, 0, 0);
+                        break;
+                    case 1:
+                        bombColor = ColorLeft;
+                        break;
+                    case 2:
+                        bombColor = ColorRight;
+                        break;
+                    case 3:
+                        bombColor = LeftUserColor;
+                        break;
+                    case 4:
+                        bombColor = RightUserColor;
+                        break;
+                    default:
+                        bombColor = ColorsUI.OtherPresets[bombColorPreset].Item1;
+                        break;
+
+                }
+
                 SetArrowColors();
 
                 ColorLeftLight *= brightness;

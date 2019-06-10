@@ -143,6 +143,10 @@ namespace CustomColors
             rightLightPreset.SetValue += delegate (float value) { Plugin.Config.SetInt("Presets", "rightLightPreset", (int)value); };
             rightLightPreset.FormatValue += delegate (float value) { return OtherPresets[(int)value].Item2; };
 
+            var bombColorPreset = subMenuPresets.AddList("Bomb Color Preset", otherPresetValues);
+            bombColorPreset.GetValue += delegate { return Plugin.Config.GetInt("Presets", "bombColorPreset", 0, true); };
+            bombColorPreset.SetValue += delegate (float value) { Plugin.Config.SetInt("Presets", "bombColorPreset", (int)value); };
+            bombColorPreset.FormatValue += delegate (float value) { return OtherPresets[(int)value].Item2; };
 
 
             var subMenuArrowPresets = subMenuCC.AddSubMenu("Arrow Color Presets", "Adjust Note Arrow Colors here!", true);

@@ -65,7 +65,7 @@ namespace CustomColors.HarmonyPatches
 
         }
     }
-    /*
+    
     [HarmonyPatch(typeof(BombNoteController), "Init")]
     class BombInitPatch
     {
@@ -73,17 +73,20 @@ namespace CustomColors.HarmonyPatches
         public static void Postfix(NoteData noteData,
             Vector3 moveStartPos, Vector3 moveEndPos, Vector3 jumpEndPos, float moveDuration, float jumpDuration, float startTime, float jumpGravity, ref GameObject ____wrapperGO)
         {
-            if(noteMat == null)
+            if(Plugin.bombColorPreset != 0)
             {
-                 noteMat = Resources.FindObjectsOfTypeAll<ColorNoteVisuals>().First().GetPrivateField<MaterialPropertyBlockController[]>("_materialPropertyBlockControllers")[0].GetPrivateField<Renderer[]>("_renderers").First(x => x.sharedMaterial != null).sharedMaterial;
-           // testMat = materialPropertyBlockController.GetPrivateField<Renderer[]>("_renderers").First(x => x.sharedMaterial != null).sharedMaterial;
-            }
-            if (noteMat != null)
-            {
-                ____wrapperGO.GetComponent<MeshRenderer>().sharedMaterial = noteMat;
-                ____wrapperGO.GetComponent<MeshRenderer>().sharedMaterial.color = Color.cyan;
+                if (noteMat == null)
+                {
+                    noteMat = Resources.FindObjectsOfTypeAll<ColorNoteVisuals>().First().GetPrivateField<MaterialPropertyBlockController[]>("_materialPropertyBlockControllers")[0].GetPrivateField<Renderer[]>("_renderers").First(x => x.sharedMaterial != null).sharedMaterial;
+                    // testMat = materialPropertyBlockController.GetPrivateField<Renderer[]>("_renderers").First(x => x.sharedMaterial != null).sharedMaterial;
+                }
+                if (noteMat != null)
+                {
+                    ____wrapperGO.GetComponent<MeshRenderer>().sharedMaterial = noteMat;
+                    ____wrapperGO.GetComponent<MeshRenderer>().sharedMaterial.color = Plugin.bombColor;
+                }
             }
         }
     }
-    */
+    
 }
